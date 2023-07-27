@@ -12,3 +12,22 @@ services:
     command: bash -c 'cd /fastapi/ && gunicorn main:app --worker-class uvicorn.workers.UvicornWorker   --bind 0.0.0.0:5000 --timeout 30' 
     ports:
         - "127.0.0.1:5000:5000"
+
+  nginx:
+    build: ./nginx 
+    restart: always
+    ports:
+      - "0.0.0.0:10200:80"
+    volumes:
+      - ./nginx/:/etc/nginx.conf.d
+    depends_on:
+      - fast_app
+  # spring_server:
+  #   build: ./SpringBoot
+  #   container_name: spring_container
+  #   volumes:
+  #     - ./SpringBoot:/SpringBoot
+  #   restart: always
+  #   command: bash -c 'cd /SpringBoot && ./gradlew clean build && java -jar build/libs/*.jar'
+  #   ports:
+  #     - "0.0.0.0:5001:80"
