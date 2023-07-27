@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  fast_app:
+    build: ./fastApi
+    container_name: api_container
+    volumes:
+      - ./fastApi:/fastapi
+    restart: always
+    environment:
+      - fast_app=/fastapi/app                     # main.py의 app 객체
+    command: bash -c 'cd /fastapi/ && gunicorn main:app --worker-class uvicorn.workers.UvicornWorker   --bind 0.0.0.0:5000 --timeout 30' 
+    ports:
+        - "127.0.0.1:5000:5000"
