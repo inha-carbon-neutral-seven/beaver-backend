@@ -11,8 +11,8 @@ git clone https://github.com/inha-carbon-neutral-seven/beaver-web-server.git
 
 - [ ] https // https://nginxproxymanager.com/
 - [x] 린트 적용 ( ci cd ), precommit -> pre-commit-config.yaml 만들기
-- [ ] cicd 구축
-- [ ] 학교에 서버 설치 후 ddns 연결
+- [x] cicd 구축
+- [x] 학교에 서버 설치 후 ddns 연결
 - [ ] 테스트 코드 작성
 
 ## how to use pre-commit
