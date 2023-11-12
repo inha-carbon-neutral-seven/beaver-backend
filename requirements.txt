@@ -3,3 +3,5 @@ uvicorn
 gunicorn
 wheel==0.41.2
 openai
+httpx
+pytest

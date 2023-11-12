@@ -1,10 +1,16 @@
 import openai
 
 from fastapi import FastAPI
-from fastApi.setting import Settings
+
+from .setting import Settings
 
 
 app = FastAPI()
+
+
+@app.get("/")
+async def ping():
+    return {"message": "Hello World"}
 
 
 @app.get("/items/{item_id}")
