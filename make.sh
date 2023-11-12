@@ -13,4 +13,4 @@ docker run -d --name $container_name -p 10100:10100 $image_name
 
 ## testing
 img_id=$(docker ps | grep biber | awk '{print $1}')
-docker exec -it $img_id /bin/bash -c "pytest"
+docker exec -i $img_id /bin/bash -c "pytest"
