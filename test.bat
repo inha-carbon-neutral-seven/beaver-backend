@@ -1,3 +1,0 @@
-
-echo %image_name%
-
