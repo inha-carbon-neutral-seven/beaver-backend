@@ -30,7 +30,7 @@ async def embed_file():
     if not os.path.exists(STORAGE_DIRECTORY):
         return {"message": "no file"}
     else:
-        for root, files in os.walk(STORAGE_DIRECTORY):
+        for root, dirs, files in os.walk(STORAGE_DIRECTORY):
             for file in files:
                 file_path = os.path.join(root, file)
                 vector_result = await do_embed(file_path)
