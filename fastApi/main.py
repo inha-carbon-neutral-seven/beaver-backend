@@ -10,7 +10,7 @@ app = FastAPI()
 
 @app.get("/")
 async def ping():
-    return {"message": "Hello World from FastAPI"}
+    return {"message": "Hello World"}
 
 
 @app.get("/items/{item_id}")
