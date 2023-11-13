@@ -1,5 +1,7 @@
 import openai
+
 from fastapi import FastAPI
+
 from .setting import Settings
 
 
@@ -9,6 +11,7 @@ app = FastAPI()
 @app.get("/")
 async def ping():
     return {"message": "Hello World"}
+
 
 @app.get("/prompt/{prompt}")
 async def do_prompt(prompt: str):
@@ -21,9 +24,8 @@ async def do_prompt(prompt: str):
     messages.append({"role": "user", "content": message})
 
     response = openai.ChatCompletion.create(
-      model=Settings().llm_server_ChatCompletion,
-      messages=messages
+        model=Settings().llm_server_ChatCompletion, messages=messages
     )
 
-    chat_message = response['choices'][0]['message']['content']
-    return {"message" : chat_message}
+    chat_message = response["choices"][0]["message"]["content"]
+    return {"message": chat_message}
