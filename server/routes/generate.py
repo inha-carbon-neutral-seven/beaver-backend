@@ -2,7 +2,7 @@ import openai
 
 from fastapi import APIRouter
 
-from ..models.generate import Question
+from ..models.generate import Answer, Question
 from ..setting import Settings
 
 
@@ -24,12 +24,12 @@ async def generate_message(question: Question):
             + " 답변은 길고 자세하게 친절한 설명을 덧붙여 작성하세요.",
         },
     ]
-    message = question
+    message = question.message
     messages.append({"role": "user", "content": message})
 
     response = openai.ChatCompletion.create(
         model=Settings().llm_server_ChatCompletion, messages=messages
     )
 
-    chat_message = response["choices"][0]["message"]["content"]
-    return {"message": chat_message}
+    answer = Answer(message=response["choices"][0]["message"]["content"])
+    return answer

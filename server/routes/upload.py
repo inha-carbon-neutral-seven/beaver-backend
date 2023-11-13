@@ -1,23 +1,44 @@
-from fastapi import APIRouter
+import os
+
+from fastapi import APIRouter, HTTPException, UploadFile
 
 
 upload_router = APIRouter()
 
+STORAGE_DIRECTORY = "./server/storage"  # 이미지를 저장할 경로
+
 
 @upload_router.post("/upload")
-async def upload_file():
-    """
-    파일을 업로드합니다.
-    """
-    return {"upload": True}
+async def upload_file(file: UploadFile):
+    if not os.path.exists(STORAGE_DIRECTORY):
+        try:
+            os.makedirs(STORAGE_DIRECTORY)
+        except OSError as e:
+            raise HTTPException from e
+
+    contents = await file.read()
+
+    # 파일 업로드
+    with open(os.path.join(STORAGE_DIRECTORY, file.filename), "wb") as fp:
+        fp.write(contents)
+
+    return {"filename": file.filename}
 
 
 @upload_router.get("/embed")
 async def embed_file():
-    """
-    파일 임베딩이 완료되었는지 확인합니다.
-    """
-    # 만약 업로드 파일이 없다면, false를 return
-    # 만약 업로드 파일이 있는데 임베딩 파일이 없다면, 요청을 보내고, 응답이 오면 true를 return
-    # 만약 업로드 파일과 임베딩 파일이 모두 있다면 true를 return
-    return {"embed": True}
+    if not os.path.exists(STORAGE_DIRECTORY):
+        return {"message": "no file"}
+    else:
+        for root, files in os.walk(STORAGE_DIRECTORY):
+            for file in files:
+                file_path = os.path.join(root, file)
+                vector_result = await do_embed(file_path)
+                print(f"store vector result : {vector_result}")
+        return {"message": "embed completed"}
+
+
+async def do_embed(file_path: str):
+    print(f"send embed request {file_path}")
+    vector_result = ""
+    return vector_result
