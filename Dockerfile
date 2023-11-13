@@ -6,6 +6,6 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip 
 RUN pip install -r /app/requirements.txt
 
-COPY ./fastApi /app/fastApi/
+COPY ./server /app/server/
 
-CMD ["uvicorn", "fastApi.main:app", "--host", "0.0.0.0", "--port", "10100"]
+CMD ["uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "10100"]

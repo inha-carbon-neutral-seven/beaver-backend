@@ -2,6 +2,6 @@ fastapi[all]
 uvicorn
 gunicorn
 wheel==0.41.2
-openai
+openai==0.28.1
 httpx
 pytest
