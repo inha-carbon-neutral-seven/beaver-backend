@@ -1,0 +1,20 @@
+name: test before pull request
+
+on: 
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test-before-merging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "$env_key" > ./server/.env && ./make.sh
+        env: 
+          env_key: ${{ secrets.ENV }}
