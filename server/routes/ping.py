@@ -16,7 +16,7 @@ async def ping():
     """
     try:
         await do_embed("./server/static/sample.txt")
-        pong = Pong(message=True)
+        pong = Pong(status=True)
     except APIConnectionError:
-        pong = Pong(message=False)
+        pong = Pong(status=False)
     return pong
