@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class Pong(BaseModel):
-    message: bool
+    status: bool
 
     class ConfigDict:
-        json_schema_extra = {"example": {"message": True}}
+        json_schema_extra = {"example": {"status": True}}
