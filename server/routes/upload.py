@@ -1,6 +1,9 @@
+import asyncio
 import os
 
-from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi import APIRouter, Form, HTTPException, UploadFile
+
+from ..models.ping import Pong
 
 
 upload_router = APIRouter()
@@ -9,12 +12,15 @@ STORAGE_DIRECTORY = "./server/storage"  # 이미지를 저장할 경로
 
 
 @upload_router.post("/upload")
-async def upload_file(file: UploadFile):
+async def upload_file(
+    file: UploadFile = Form(...),
+    description: str = Form(...),
+):
     if not os.path.exists(STORAGE_DIRECTORY):
         try:
             os.makedirs(STORAGE_DIRECTORY)
-        except OSError as e:
-            raise HTTPException from e
+        except HTTPException:
+            print()
 
     contents = await file.read()
 
@@ -22,20 +28,24 @@ async def upload_file(file: UploadFile):
     with open(os.path.join(STORAGE_DIRECTORY, file.filename), "wb") as fp:
         fp.write(contents)
 
-    return {"filename": file.filename}
+    return {"filename": file.filename, "description": description}
 
 
 @upload_router.get("/embed")
 async def embed_file():
     if not os.path.exists(STORAGE_DIRECTORY):
-        return {"message": "no file"}
+        pong = Pong(status=False)
+        return pong
     else:
         for root, dirs, files in os.walk(STORAGE_DIRECTORY):
             for file in files:
                 file_path = os.path.join(root, file)
                 vector_result = await do_embed(file_path)
+                await asyncio.sleep(5)  # 테스트 코드, 임베드에 5초가 걸린다고 가정
                 print(f"store vector result : {vector_result}")
-        return {"message": "embed completed"}
+
+        pong = Pong(status=True)
+        return pong
 
 
 async def do_embed(file_path: str):
