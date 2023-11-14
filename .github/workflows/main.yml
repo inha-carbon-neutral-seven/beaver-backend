@@ -9,5 +9,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: echo "$env_key" > .env && ./make.sh
-      - env: 
+        env: 
           env_key: ${{ secrets.ENV }}
