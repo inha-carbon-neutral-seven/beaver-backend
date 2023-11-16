@@ -1,7 +1,8 @@
 fastapi[all]
 uvicorn
 gunicorn
-wheel==0.41.2
-openai==0.28.1
+wheel
+openai
 httpx
 pytest
+langchain
