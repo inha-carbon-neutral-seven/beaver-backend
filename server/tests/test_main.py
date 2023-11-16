@@ -1,6 +1,5 @@
 from fastapi.testclient import TestClient
-
-from ..main import app
+from ..main import app, startup_event
 
 client = TestClient(app)
 
@@ -10,12 +9,16 @@ client = TestClient(app)
 
 
 def test_모델_서버_상태_확인():
+    startup_event()
+
     response = client.get("/ping")
     assert response.status_code == 200
     assert "status" in response.json()
 
 
 def test_대답_생성_확인():
+    startup_event()
+
     data = {"message": "대한민국의 수도는 어디야?"}
     response = client.post("/generate", json=data)
     assert response.status_code == 200
