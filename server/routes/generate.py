@@ -1,9 +1,11 @@
 import logging
 
+
 from openai import OpenAI, APIConnectionError
 from fastapi import APIRouter
+
 from ..models.generate import Answer, Question
-from ..setting import Settings
+
 
 generate_router = APIRouter()
 
@@ -14,10 +16,8 @@ async def generate_message(question: Question):
     모델 서버에 대답을 요청하여 클라이언트에게 전달합니다.
     또한, 대화 기록을 서버에 저장합니다.
     """
-    client = OpenAI(
-        api_key="empty",
-        base_url=Settings().llm_server_URL,
-    )
+
+    client = OpenAI()
     messages = [
         {
             "role": "system",
