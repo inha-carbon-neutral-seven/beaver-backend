@@ -20,9 +20,10 @@ async def generate_message(question: Question):
     messages = [
         {
             "role": "system",
-            "content": "당신은 AI 챗봇이며, 사용자에게 도움이 되는 유익한 내용을 제공해야 합니다."
+            "content": "당신은 AI 챗봇이며, "
+            + "소상공인의 매출 데이터를 분석해 매출 상승에 관한 결정에 도움을 줍니다."
             + " 답변은 길고 자세하게 친절한 설명을 덧붙여 작성하세요.",
-        },
+        }
     ]
     message = question.message
     messages.append({"role": "user", "content": message})
