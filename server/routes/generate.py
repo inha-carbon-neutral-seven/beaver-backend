@@ -1,10 +1,9 @@
-import openai
+import logging
 
+from openai import OpenAI, APIConnectionError
 from fastapi import APIRouter
-
 from ..models.generate import Answer, Question
 from ..setting import Settings
-
 
 generate_router = APIRouter()
 
@@ -15,8 +14,10 @@ async def generate_message(question: Question):
     모델 서버에 대답을 요청하여 클라이언트에게 전달합니다.
     또한, 대화 기록을 서버에 저장합니다.
     """
-    openai.api_key = "empty"
-    openai.api_base = Settings().llm_server_URL
+    client = OpenAI(
+        api_key="empty",
+        base_url=Settings().llm_server_URL,
+    )
     messages = [
         {
             "role": "system",
@@ -27,9 +28,15 @@ async def generate_message(question: Question):
     message = question.message
     messages.append({"role": "user", "content": message})
 
-    response = openai.ChatCompletion.create(
-        model=Settings().llm_server_ChatCompletion, messages=messages
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+        )
+        answer = Answer(message=response.choices[0].message.content)
+    except APIConnectionError as e:
+        logging.exception("%s : 모델 서버에 연결할 수 없습니다. 모델 서버 상태 또는 env 환경 변수를 확인해주세요. ", e)
+        answer = Answer(message="모델 서버 상태를 확인해주세요.")
 
-    answer = Answer(message=response["choices"][0]["message"]["content"])
+    logging.info("생성한 응답: %s", answer.message)
     return answer

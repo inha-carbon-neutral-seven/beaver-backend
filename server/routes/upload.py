@@ -1,6 +1,8 @@
 import asyncio
 import os
+import logging
 
+from openai import APIConnectionError
 from fastapi import APIRouter, Form, HTTPException, UploadFile
 
 from ..models.ping import Pong
@@ -42,13 +44,15 @@ async def embed_file():
                 file_path = os.path.join(root, file)
                 vector_result = await do_embed(file_path)
                 await asyncio.sleep(5)  # 테스트 코드, 임베드에 5초가 걸린다고 가정
-                print(f"store vector result : {vector_result}")
 
         pong = Pong(status=True)
         return pong
 
 
 async def do_embed(file_path: str):
-    print(f"send embed request {file_path}")
+    """
+    APIConnectionError로 핸들링해주세요.
+    """
     vector_result = ""
+    logging.info("벡터 변환 결과 : %s", vector_result[0:10])
     return vector_result
