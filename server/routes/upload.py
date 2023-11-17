@@ -1,58 +1,62 @@
-import asyncio
 import os
 import logging
 
+from fastapi import APIRouter, Form, UploadFile
+from llama_index import VectorStoreIndex, SimpleDirectoryReader
 from openai import APIConnectionError
-from fastapi import APIRouter, Form, HTTPException, UploadFile
 
 from ..models.ping import Pong
 
 
 upload_router = APIRouter()
 
-STORAGE_DIRECTORY = "./server/storage"  # 이미지를 저장할 경로
+STORAGE_PATH = "./server/storage/user1"  # 저장 경로, 세션 별 관리를 위해 폴더 분리해둠
 
 
 @upload_router.post("/upload")
-async def upload_file(
-    file: UploadFile = Form(...),
-    description: str = Form(...),
-):
-    if not os.path.exists(STORAGE_DIRECTORY):
-        try:
-            os.makedirs(STORAGE_DIRECTORY)
-        except HTTPException:
-            print()
+async def upload_file(file: UploadFile = Form(...), description: str = Form(...)):
+    raw_path = STORAGE_PATH + "/raw"
+
+    # 기존 디렉토리 및 하위 내용 삭제
+    if os.path.exists(STORAGE_PATH):
+        for root, dirs, files in os.walk(STORAGE_PATH, topdown=False):
+            for file_name in files:
+                os.remove(os.path.join(root, file_name))
+            for dir_name in dirs:
+                os.rmdir(os.path.join(root, dir_name))
+        os.rmdir(STORAGE_PATH)
+
+    # raw_path 디렉토리 재생성
+    os.makedirs(raw_path)
 
     contents = await file.read()
+    filename = file.filename.replace(" ", "-")
 
-    # 파일 업로드
-    with open(os.path.join(STORAGE_DIRECTORY, file.filename), "wb") as fp:
+    with open(os.path.join(raw_path, filename), "wb") as fp:
         fp.write(contents)
 
-    return {"filename": file.filename, "description": description}
+    return {"filename": filename, "description": description}
 
 
 @upload_router.get("/embed")
 async def embed_file():
-    if not os.path.exists(STORAGE_DIRECTORY):
-        pong = Pong(status=False)
-        return pong
-    else:
-        for root, dirs, files in os.walk(STORAGE_DIRECTORY):
-            for file in files:
-                file_path = os.path.join(root, file)
-                vector_result = await do_embed(file_path)
-                await asyncio.sleep(5)  # 테스트 코드, 임베드에 5초가 걸린다고 가정
+    raw_path = STORAGE_PATH + "/raw"
+    embed_path = STORAGE_PATH + "/embed"
+    docs = []
 
-        pong = Pong(status=True)
-        return pong
+    try:
+        docs = SimpleDirectoryReader(input_dir=raw_path, recursive=True).load_data()
+    except ValueError:
+        logging.warning("저장소가 비어 있음")
+        return Pong(status=False)
 
+    try:
+        index = VectorStoreIndex.from_documents(docs)
+        if not os.path.exists(embed_path):
+            os.makedirs(embed_path)
+        index.storage_context.persist(persist_dir=embed_path)
+    except APIConnectionError:
+        logging.warning("모델 서버에 연결할 수 없음")
+        return Pong(status=False)
 
-async def do_embed(file_path: str):
-    """
-    APIConnectionError로 핸들링해주세요.
-    """
-    vector_result = ""
-    logging.info("벡터 변환 결과 : %s", vector_result[0:10])
-    return vector_result
+    return Pong(status=True)

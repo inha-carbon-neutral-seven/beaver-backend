@@ -1,8 +1,9 @@
 import logging
 
-
-from openai import OpenAI, APIConnectionError
 from fastapi import APIRouter
+from llama_index import StorageContext, load_index_from_storage
+
+from openai import APIConnectionError
 
 from ..models.generate import Answer, Question
 
@@ -10,33 +11,32 @@ from ..models.generate import Answer, Question
 generate_router = APIRouter()
 
 
+STORAGE_PATH = "./server/storage/user1"  # 저장 경로, 세션 별 관리를 위해 폴더 분리해둠
+
+
 @generate_router.post("/generate")
 async def generate_message(question: Question):
     """
-    모델 서버에 대답을 요청하여 클라이언트에게 전달합니다.
-    또한, 대화 기록을 서버에 저장합니다.
+    [v] 모델 서버에 대답을 요청하여 클라이언트에게 전달합니다.
+    [ ] 또한, 대화 기록을 서버에 저장합니다.
     """
 
-    client = OpenAI()
-    messages = [
-        {
-            "role": "system",
-            "content": "당신은 AI 챗봇이며, 사용자에게 도움이 되는 유익한 내용을 제공해야 합니다."
-            + " 답변은 길고 자세하게 친절한 설명을 덧붙여 작성하세요.",
-        },
-    ]
-    message = question.message
-    messages.append({"role": "user", "content": message})
+    embed_path = STORAGE_PATH + "/embed"
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-        )
-        answer = Answer(message=response.choices[0].message.content)
-    except APIConnectionError as e:
-        logging.exception("%s : 모델 서버에 연결할 수 없습니다. 모델 서버 상태 또는 env 환경 변수를 확인해주세요. ", e)
-        answer = Answer(message="모델 서버 상태를 확인해주세요.")
+        storage_context = StorageContext.from_defaults(persist_dir=embed_path)
+        index = load_index_from_storage(storage_context)
+    except FileNotFoundError:
+        logging.warning("저장소 내부가 비어 있음")
+        return Answer(message="파일이 첨부되지 않았습니다.")
+
+    try:
+        chat_engine = index.as_chat_engine(chat_mode="condense_question", verbose=True)
+        res = chat_engine.chat(message=question.message)
+        answer = Answer(message=res.response)
+    except APIConnectionError:
+        logging.warning("모델 서버에 연결할 수 없음")
+        return Answer(message="모델 서버 상태를 확인해주세요.")
 
     logging.info("생성한 응답: %s", answer.message)
     return answer

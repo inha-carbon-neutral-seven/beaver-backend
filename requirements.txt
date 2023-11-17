@@ -6,3 +6,5 @@ openai
 httpx
 pytest
 langchain
+llama_index
+pypdf
