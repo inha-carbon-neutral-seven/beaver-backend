@@ -1,1 +1,1 @@
-kimchi is good
+It's a sample text for /ping
