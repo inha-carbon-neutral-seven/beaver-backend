@@ -1,8 +1,9 @@
 import logging
 
-from fastapi import APIRouter
 from llama_index import StorageContext, load_index_from_storage
 from openai import APIConnectionError
+
+from fastapi import APIRouter, HTTPException
 
 from ..models.generate import Answer, Question
 
@@ -27,11 +28,13 @@ async def generate_message(question: Question):
         index = load_index_from_storage(storage_context)
     except FileNotFoundError:
         logging.warning("저장소 내부가 비어 있음")
-        return Answer(message="파일이 첨부되지 않았습니다.")
+        HTTPException(status_code=404, detail="저장소가 비어 있음")
 
     try:
-        if False: # 자연스러운 응답을 생성하는 Completion 모델로 임시 설정
-            chat_engine = index.as_chat_engine(chat_mode="condense_question", verbose=True)
+        if False:  # 자연스러운 응답을 생성하는 Completion 모델로 임시 설정
+            chat_engine = index.as_chat_engine(
+                chat_mode="condense_question", verbose=True
+            )
             res = chat_engine.chat(message=question.message)
         query_engine = index.as_query_engine()
         res = query_engine.query(question.message)
@@ -39,7 +42,7 @@ async def generate_message(question: Question):
         answer = Answer(message=res.response)
     except APIConnectionError:
         logging.warning("모델 서버에 연결할 수 없음")
-        return Answer(message="모델 서버 상태를 확인해주세요.")
+        HTTPException(status_code=502, detail="모델 서버에 연결할 수 없음")
 
     logging.info("생성한 응답: %s", answer.message)
     return answer

@@ -1,10 +1,10 @@
-import logging
-
-from fastapi import APIRouter
+from llama_index import OpenAIEmbedding, SimpleDirectoryReader, VectorStoreIndex
 from openai import APIConnectionError
-from llama_index import SimpleDirectoryReader, VectorStoreIndex, OpenAIEmbedding
+
+from fastapi import APIRouter, HTTPException
 
 from ..models.ping import Pong
+
 
 ping_router = APIRouter()
 
@@ -19,7 +19,6 @@ async def ping():
         VectorStoreIndex.from_documents(docs)
 
     except APIConnectionError:
-        logging.warning("모델 서버에 연결할 수 없음")
-        return Pong(status=False)
+        raise HTTPException(status_code=502, detail="모델 서버에 연결할 수 없음")
 
     return Pong(status=True)

@@ -1,15 +1,17 @@
-import os
 import logging
+import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from llama_index import OpenAIEmbedding, ServiceContext, set_global_service_context
 from llama_index.llms import OpenAI
 
+from fastapi import FastAPI
+
 from .routes.generate import generate_router
 from .routes.ping import ping_router
 from .routes.upload import upload_router
+
 
 app = FastAPI()
 
@@ -44,7 +46,7 @@ async def load_openai():
 
     # 프롬프트 및 LLM 설정
     system_prompt = """당신은 AI 챗봇이며, 사용자에게 도움이 되는 유익한 내용을 제공해야 합니다.
-    첨부한 자료를 근거로 해서 질문에 답해주시기 바랍니다. 
+    첨부한 자료를 근거로 해서 질문에 답해주시기 바랍니다.
     """
     llm = OpenAI(
         temperature=0.1, api_key=api_key, api_base=base_url, system_prompt=system_prompt

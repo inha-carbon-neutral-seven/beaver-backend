@@ -1,9 +1,10 @@
-import os
 import logging
+import os
 
-from fastapi import APIRouter, Form, UploadFile
-from llama_index import VectorStoreIndex, SimpleDirectoryReader
+from llama_index import SimpleDirectoryReader, VectorStoreIndex
 from openai import APIConnectionError
+
+from fastapi import APIRouter, Form, HTTPException, UploadFile
 
 from ..models.ping import Pong
 
@@ -48,7 +49,7 @@ async def embed_file():
         docs = SimpleDirectoryReader(input_dir=raw_path, recursive=True).load_data()
     except ValueError:
         logging.warning("저장소가 비어 있음")
-        return Pong(status=False)
+        HTTPException(status_code=404, detail="저장소가 비어 있음")
 
     try:
         index = VectorStoreIndex.from_documents(docs)
@@ -57,6 +58,6 @@ async def embed_file():
         index.storage_context.persist(persist_dir=embed_path)
     except APIConnectionError:
         logging.warning("모델 서버에 연결할 수 없음")
-        return Pong(status=False)
+        HTTPException(status_code=502, detail="모델 서버에 연결할 수 없음")
 
     return Pong(status=True)
