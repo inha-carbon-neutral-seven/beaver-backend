@@ -1,4 +1,5 @@
 import os
+import logging
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -29,9 +30,19 @@ app.include_router(generate_router)
 
 @app.on_event("startup")
 async def load_openai():
+    # env 설정
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
     base_url = os.getenv("OPENAI_BASE_URL")
+
+    # 로그 설정
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("uvicorn.access")
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    logger.addHandler(handler)
+
+    # 프롬프트 및 LLM 설정
     system_prompt = """당신은 AI 챗봇이며, 사용자에게 도움이 되는 유익한 내용을 제공해야 합니다.
     첨부한 자료를 근거로 해서 질문에 답해주시기 바랍니다. 
     """
