@@ -10,4 +10,4 @@ docker build -t %image_name% .
 docker run -d --name %container_name% -p 10100:10100 %image_name%
 
 for /f "tokens=1" %%a in ('docker ps ^| findstr biber') do set image_id=%%a
-docker exec -i  %image_id%  /bin/bash -c "pytest"
+docker exec -i  %image_id%  /bin/bash -c "cd server && pytest"
