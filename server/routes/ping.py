@@ -2,7 +2,7 @@ import logging
 
 from fastapi import APIRouter
 from openai import APIConnectionError
-from llama_index import SimpleDirectoryReader, VectorStoreIndex
+from llama_index import SimpleDirectoryReader, VectorStoreIndex, OpenAIEmbedding
 
 from ..models.ping import Pong
 
@@ -11,6 +11,7 @@ ping_router = APIRouter()
 
 @ping_router.get("/ping")
 async def ping():
+    OpenAIEmbedding(timeout=5)
     try:
         docs = SimpleDirectoryReader(
             input_dir="./server/static", recursive=True
