@@ -25,14 +25,15 @@ async def generate_message(question: Question):
     try:
         storage_context = StorageContext.from_defaults(persist_dir=embed_path)
         index = load_index_from_storage(storage_context)
-    except FileNotFoundError:
+    except FileNotFoundError:  # 사용자로부터 임베딩 파일을 받지 못했을 때 예외를 표출함
         logging.warning("저장소 내부가 비어 있음")
         return Answer(message="파일이 첨부되지 않았습니다.")
 
     try:
-        if False: # 자연스러운 응답을 생성하는 Completion 모델로 임시 설정
+        if 1 == 0: # chat engine 사용 전에 자연스러운 프롬프트 처리가 필요함
             chat_engine = index.as_chat_engine(chat_mode="condense_question", verbose=True)
             res = chat_engine.chat(message=question.message)
+        # 자연스러운 응답을 생성하는 query engine으로 임시 설정
         query_engine = index.as_query_engine()
         res = query_engine.query(question.message)
 
