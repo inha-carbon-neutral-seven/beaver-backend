@@ -45,10 +45,8 @@ async def load_openai():
     # 프롬프트 및 LLM 설정
     system_prompt = """당신은 AI 챗봇이며, 사용자에게 도움이 되는 유익한 내용을 제공해야 합니다.
     첨부한 자료를 근거로 해서 질문에 답해주시기 바랍니다. 
-    """
-    llm = OpenAI(
-        temperature=0.1, api_key=api_key, api_base=base_url, system_prompt=system_prompt
-    )
+    대답은 짧게 생성해주세요. """
+    llm = OpenAI(temperature=0, api_key=api_key, api_base=base_url, system_prompt=system_prompt)
     embed_model = OpenAIEmbedding(api_key=api_key, api_base=base_url)
 
     service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model)
