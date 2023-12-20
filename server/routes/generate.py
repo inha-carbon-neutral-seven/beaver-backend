@@ -1,9 +1,14 @@
 from fastapi import APIRouter
-from ..services.generate_service import generate_service
+from ..services.generate_service import generate_message
 from ..models.generate import Answer, Question
 
 generate_router = APIRouter()
 
+
 @generate_router.post("/generate")
-async def generate_message(question: Question) -> Answer:
-    return await generate_service(question)
+async def generate(question: Question) -> Answer:
+    """
+    메시지를 생성합니다.
+    """
+    answer = await generate_message(question)
+    return answer
