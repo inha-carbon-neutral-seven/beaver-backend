@@ -24,7 +24,8 @@ async def clear_storage() -> None:
 
 
 async def save_raw_file(contents: bytes, filename: str) -> None:
-    file_path = os.path.join(STORAGE_PATH + "/raw", filename)
+    # file_path = os.path.join(STORAGE_PATH + "/raw", filename)
+    file_path = os.path.join(STORAGE_PATH + "/structured", filename)
 
     with open(file_path, "wb") as fp:
         fp.write(contents)
