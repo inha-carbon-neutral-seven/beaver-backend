@@ -4,7 +4,9 @@ gunicorn
 wheel
 openai
 httpx
+pandas
 pytest
 langchain
+langchain_experimental
 llama_index
 pypdf
