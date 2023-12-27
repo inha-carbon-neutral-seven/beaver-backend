@@ -9,4 +9,5 @@ pytest
 langchain
 langchain_experimental
 llama_index
+tabulate
 pypdf
