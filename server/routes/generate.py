@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from ..services.generate_service import generate_message
+from ..services.generate import generate_message
 from ..models.generate import Answer, Question
 
 generate_router = APIRouter()

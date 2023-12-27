@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from ..services.ping_service import check_server_status
+from ..services.ping import check_server_status
 from ..models.pong import Pong
 
 ping_router = APIRouter()

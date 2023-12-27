@@ -1,4 +1,4 @@
-from .storage_service import clear_storage, save_raw_file, save_description
+from .storage import clear_storage, save_file, save_description
 
 STORAGE_PATH = "./server/storage/user1"  # 저장 경로, 세션 별 관리를 위해 폴더 분리해둠
 
@@ -9,7 +9,7 @@ async def upload_file(contents: bytes, filename: str, description: str) -> dict:
     """
 
     await clear_storage()
-    await save_raw_file(contents, filename)
+    await save_file(contents, filename)
     await save_description(description)
 
     return {"filename": filename, "description": description}

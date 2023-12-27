@@ -5,7 +5,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
 from ..models.generate import Answer, Question
-from .ping_service import check_server_status
+from .ping import check_server_status
 
 
 async def generate_message(question: Question) -> Answer:

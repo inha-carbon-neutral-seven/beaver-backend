@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Form, UploadFile
 
-from ..services.upload_service import upload_file
-from ..services.embed_service import embed_file
+from ..services.upload import upload_file
+from ..services.embed import embed_file
 from ..models.pong import Pong
 
 upload_router = APIRouter()
