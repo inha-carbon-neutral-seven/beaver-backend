@@ -5,7 +5,7 @@ on:
       - main
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: lsh-desktop
     steps:
       - uses: actions/checkout@v3
       - run: echo "$env_key" > ./server/.env && ./make.sh
