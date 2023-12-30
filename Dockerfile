@@ -8,4 +8,6 @@ RUN pip install -r /app/requirements.txt
 
 COPY ./server /app/server/
 
-CMD ["uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "10100"]
+#CMD ["uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "10100"]
+
+CMD ["gunicorn", "--bind", "0:8000", "server.main:app","--workers", "3", "--worker-class", "uvicorn.workers.UvicornWorker"]
