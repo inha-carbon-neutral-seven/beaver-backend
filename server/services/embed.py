@@ -4,16 +4,16 @@ from llama_index import VectorStoreIndex, SimpleDirectoryReader
 from openai import APIConnectionError
 
 from .ping import check_server_status
-from .storage import load_table_filename
-
-STORAGE_PATH = "./server/storage/user1"  # 저장 경로, 세션 별 관리를 위해 폴더 분리해둠
+from .storage import load_table_filename, get_storage_path
 
 
 async def embed_file() -> bool:
     """
     저장소에 있는 파일을 모델 서버로 보내 임베딩 결과를 받아옴
     """
-
+    storage_path = get_storage_path()
+    raw_path = os.path.join(storage_path, "raw")
+    embed_path = os.path.join(storage_path, "embed")
     table_filename = await load_table_filename()
 
     if table_filename is not None:
@@ -24,8 +24,6 @@ async def embed_file() -> bool:
     if await check_server_status() is False:
         return False
 
-    raw_path = STORAGE_PATH + "/raw"
-    embed_path = STORAGE_PATH + "/embed"
     docs = []
 
     try:

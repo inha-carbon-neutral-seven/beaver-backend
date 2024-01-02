@@ -37,6 +37,7 @@ async def generate_message_from_table(question: Question) -> Answer:
         agent_type=AgentType.OPENAI_FUNCTIONS, llm=llm, df=df, verbose=True, extra_tools=[]
     )
 
+    logging.info("pandas dataframe agent 호출")
     res = agent.run(question.message)
 
     answer = Answer(message=res)
@@ -49,10 +50,11 @@ async def generate_message_from_document(question: Question) -> Answer:
 
     index = await load_embed_index()
     if index is None:
-        message="파일이 첨부되지 않았습니다."
+        message = "파일이 첨부되지 않았습니다."
         return Answer(message=message)
 
     try:
+        logging.info("query engine 호출")
         query_engine = index.as_query_engine()
         res = query_engine.query(question.message)
         message = res.response
