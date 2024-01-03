@@ -14,7 +14,7 @@ async def upload(request: Request, file: UploadFile = Form(...), description: st
     """
     인덱스로 사용할 파일을 업로드합니다.
     """
-    
+
     set_user_id(request=request)
 
     contents = await file.read()

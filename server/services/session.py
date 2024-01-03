@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import Request
 
 user_map = {"sequence": 1000}
