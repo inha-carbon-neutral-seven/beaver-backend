@@ -9,6 +9,10 @@ from .ping import check_server_status
 
 
 async def generate_message(question: Question) -> Answer:
+    """
+    unused:
+
+    """
     if await check_server_status() is False:  # 모델 서버가 불안정하면 임베딩을 진행하지 않음
         return Answer(message="모델 서버가 불안정합니다. 나중에 시도해주세요. ")
 

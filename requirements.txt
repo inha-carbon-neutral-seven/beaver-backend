@@ -6,6 +6,7 @@ openai
 httpx
 pandas
 pytest
+tabulate
 langchain
 langchain_experimental
 llama_index

@@ -4,6 +4,7 @@ import pandas as pd
 from langchain.chat_models import ChatOpenAI
 from langchain.agents.types import AgentType
 from langchain_experimental.agents import create_pandas_dataframe_agent
+
 from openai import APIConnectionError
 
 from ..models.generate import Answer, Question
@@ -37,6 +38,9 @@ async def generate_message_from_table(question: Question) -> Answer:
         agent_type=AgentType.OPENAI_FUNCTIONS, llm=llm, df=df, verbose=True, extra_tools=[]
     )
 
+    logging.info("pandas dataframe agent 호출")
+
+    question.message = f"메타 데이터를 제외하고 대답해줘. {question.message}"
     res = agent.run(question.message)
 
     answer = Answer(message=res)
@@ -49,11 +53,13 @@ async def generate_message_from_document(question: Question) -> Answer:
 
     index = await load_embed_index()
     if index is None:
-        message="파일이 첨부되지 않았습니다."
+        message = "파일이 첨부되지 않았습니다."
         return Answer(message=message)
 
     try:
+        logging.info("query engine 호출")
         query_engine = index.as_query_engine()
+        question.message = f"메타 데이터를 제외하고 대답해줘. {question.message}"
         res = query_engine.query(question.message)
         message = res.response
 
