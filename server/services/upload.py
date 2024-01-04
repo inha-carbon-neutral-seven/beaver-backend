@@ -6,7 +6,7 @@ async def upload_file(contents: bytes, filename: str, description: str) -> dict:
     """
 
     await clear_storage()
-    await save_file(contents, filename)
-    await save_description(description)
+    await save_file(contents, filename, description)
+    # await save_description(description)
 
     return {"filename": filename, "description": description}
