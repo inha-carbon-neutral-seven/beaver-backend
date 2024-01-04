@@ -33,17 +33,19 @@ async def generate_message_from_table(question: Question) -> Answer:
     table_filename = await load_table_filename()
     df = pd.read_csv(table_filename)
 
-    llm = ChatOpenAI(temperature=0)
+    llm = ChatOpenAI(temperature=0.6)
     agent = create_pandas_dataframe_agent(
-        agent_type=AgentType.OPENAI_FUNCTIONS, llm=llm, df=df, verbose=True, extra_tools=[]
+        agent_type=AgentType.OPENAI_FUNCTIONS,
+        llm=llm,
+        df=df,
+        verbose=False,
+        return_intermediate_steps=True,
     )
 
     logging.info("pandas dataframe agent 호출")
 
-    question.message = f"메타 데이터를 제외하고 대답해줘. {question.message}"
-    res = agent.run(question.message)
-
-    answer = Answer(message=res)
+    response = agent.invoke({"input": f"{question.message}"})
+    answer = Answer(message=response["output"])
     return answer
 
 

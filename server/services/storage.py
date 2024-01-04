@@ -40,7 +40,7 @@ async def clear_storage() -> None:
     os.makedirs(structured_path)
 
 
-async def save_file(contents: bytes, filename: str) -> None:
+async def save_file(contents: bytes, filename: str, description: str) -> None:
     """
     파일을 확장자에 맞추어 저장합니다.
     """
@@ -51,11 +51,12 @@ async def save_file(contents: bytes, filename: str) -> None:
 
     # 확장자 추출
     _, file_ext = os.path.splitext(filename)
+    new_filename = f"{description}{file_ext}"
 
     if file_ext.lower() in TABLE_EXT:
-        file_path = os.path.join(storage_path, "structured", filename)
+        file_path = os.path.join(storage_path, "structured", new_filename)
     else:
-        file_path = os.path.join(storage_path, "raw", filename)
+        file_path = os.path.join(storage_path, "raw", new_filename)
 
     with open(file_path, "wb") as fp:
         fp.write(contents)
