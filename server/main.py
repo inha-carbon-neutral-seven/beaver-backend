@@ -1,4 +1,5 @@
 import logging
+import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -32,6 +33,9 @@ app.include_router(generate_router)
 async def startup():
     # env 설정
     load_dotenv()
+    if "OPENAI_API_BASE" not in os.environ and "OPENAI_BASE_URL" in os.environ:
+        # OPENAI_BASE_URL을 OPENAI_API_BASE로 설정
+        os.environ["OPENAI_API_BASE"] = os.environ.get("OPENAI_BASE_URL")
 
     # 로그 설정
     logging.basicConfig(level=logging.INFO)

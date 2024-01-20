@@ -10,6 +10,8 @@ from openai import APIConnectionError
 
 from .ping import check_server_status
 from .storage import get_storage_path, load_table_filename
+from .agents.recommendation_agent import lookup as recommendation_agent
+from ..models.recommendation import RecommendationOutput
 
 
 async def embed_file() -> bool:
@@ -49,5 +51,21 @@ async def embed_file() -> bool:
     except APIConnectionError:
         logging.warning("모델 서버에 연결할 수 없음")
         return False
-
     return True
+
+
+async def generate_recommendations() -> RecommendationOutput:
+    """
+    사용자가 물어볼 만한 적절한 질문을 파일 내용을 기반으로 생성합니다.
+    """
+
+    # TODO: 업로드 파일에 대한 간략한 설명을 description으로 생성해낼 것
+
+    description = """
+    The data is a pandas dataframe with 112,191 entries 
+    and 18 columns representing various attributes of items in a store.
+    """
+
+    result = recommendation_agent(description=description)
+
+    return result
