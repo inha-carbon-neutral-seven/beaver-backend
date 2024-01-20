@@ -1,14 +1,17 @@
+"""
+POST /generate 
+에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+"""
 import logging
+
 import pandas as pd
 
 from langchain.chat_models import ChatOpenAI
-from langchain.agents.types import AgentType
 from langchain_experimental.agents import create_pandas_dataframe_agent
-
 from openai import APIConnectionError
 
 from ..models.generate import Answer, Question
-from .storage import load_table_filename, load_embed_index
+from .storage import load_embed_index, load_table_filename
 
 
 async def generate_message(question: Question) -> Answer:
@@ -21,7 +24,10 @@ async def generate_message(question: Question) -> Answer:
     table_filename = await load_table_filename()
 
     if table_filename is not None:
-        answer = await generate_message_from_table(question=question)
+        answer = await generate_message_from_table(
+            question=question,
+            pandas_dataframe_filename=table_filename,
+        )
     else:
         answer = await generate_message_from_document(question=question)
 
@@ -29,13 +35,11 @@ async def generate_message(question: Question) -> Answer:
     return answer
 
 
-async def generate_message_from_table(question: Question) -> Answer:
-    table_filename = await load_table_filename()
-    df = pd.read_csv(table_filename)
+async def generate_message_from_table(question: Question, pandas_dataframe_filename: str) -> Answer:
+    df = pd.read_csv(pandas_dataframe_filename)
 
     llm = ChatOpenAI(temperature=0.6)
     agent = create_pandas_dataframe_agent(
-        agent_type=AgentType.OPENAI_FUNCTIONS,
         llm=llm,
         df=df,
         verbose=False,
@@ -44,13 +48,12 @@ async def generate_message_from_table(question: Question) -> Answer:
 
     logging.info("pandas dataframe agent 호출")
 
-    response = agent.invoke({"input": f"{question.message}"})
+    response = agent.invoke({"input": question.message})
     answer = Answer(message=response["output"])
     return answer
 
 
 async def generate_message_from_document(question: Question) -> Answer:
-    index = None
     message = None
 
     index = await load_embed_index()

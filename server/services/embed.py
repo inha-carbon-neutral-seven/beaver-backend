@@ -1,10 +1,15 @@
-import os
+"""
+GET /embed
+에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+"""
 import logging
-from llama_index import VectorStoreIndex, SimpleDirectoryReader
+import os
+
+from llama_index import SimpleDirectoryReader, VectorStoreIndex
 from openai import APIConnectionError
 
 from .ping import check_server_status
-from .storage import load_table_filename, get_storage_path
+from .storage import get_storage_path, load_table_filename
 
 
 async def embed_file() -> bool:
@@ -24,16 +29,20 @@ async def embed_file() -> bool:
     if await check_server_status() is False:
         return False
 
-    docs = []
+    documents = []
 
     try:
-        docs = SimpleDirectoryReader(input_dir=raw_path, recursive=True).load_data()
+        documents = SimpleDirectoryReader(
+            input_dir=raw_path,
+            recursive=True,
+        ).load_data(show_progress=True)
     except ValueError:
         logging.warning("저장소가 비어 있음")
         return False
 
     try:
-        index = VectorStoreIndex.from_documents(docs)
+        index = VectorStoreIndex.from_documents(documents, show_progress=True)
+
         if not os.path.exists(embed_path):
             os.makedirs(embed_path)
         index.storage_context.persist(persist_dir=embed_path)

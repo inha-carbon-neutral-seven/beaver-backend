@@ -1,4 +1,8 @@
+"""
+세션 설정에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+"""
 from fastapi import Request
+
 
 user_map = {"sequence": 1000}
 
