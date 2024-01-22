@@ -1,6 +1,7 @@
 fastapi[all]
 uvicorn
 gunicorn
+requests
 wheel
 openai
 httpx

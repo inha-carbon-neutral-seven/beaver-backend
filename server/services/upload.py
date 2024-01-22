@@ -1,4 +1,10 @@
-from .storage import clear_storage, save_file, save_description
+"""
+POST /upload 
+에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+"""
+
+from .storage import clear_storage, save_file
+
 
 async def upload_file(contents: bytes, filename: str, description: str) -> dict:
     """
@@ -7,6 +13,5 @@ async def upload_file(contents: bytes, filename: str, description: str) -> dict:
 
     await clear_storage()
     await save_file(contents, filename, description)
-    # await save_description(description)
 
     return {"filename": filename, "description": description}

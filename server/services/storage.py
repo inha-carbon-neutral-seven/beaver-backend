@@ -1,8 +1,14 @@
+"""
+저장 공간 관리에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+"""
+
 import os
+
 from llama_index import StorageContext, load_index_from_storage
 from llama_index.indices.base import BaseIndex
 
 from .session import get_user_id
+
 
 TABLE_EXT = [".csv", ".tsv", ".xlsx"]
 
@@ -62,18 +68,7 @@ async def save_file(contents: bytes, filename: str, description: str) -> None:
         fp.write(contents)
 
 
-async def save_description(description: str) -> None:
-    storage_path = get_storage_path()
-    description_path = os.path.join(storage_path, "raw", "description.txt")
-
-    # 문자열을 UTF-8로 인코딩하여 bytes로 변환
-    encoded_description = description.encode("utf-8")
-
-    with open(description_path, "wb") as fp:
-        fp.write(encoded_description)
-
-
-async def load_table_filename() -> str:
+async def load_table_filename() -> str | None:
     """
     path에 있는 첫 번째 테이블 파일 경로를 전달하는 함수
     """

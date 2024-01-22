@@ -1,10 +1,17 @@
-import os
+"""
+GET /embed
+에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+"""
 import logging
-from llama_index import VectorStoreIndex, SimpleDirectoryReader
+import os
+
+from llama_index import SimpleDirectoryReader, VectorStoreIndex
 from openai import APIConnectionError
 
 from .ping import check_server_status
-from .storage import load_table_filename, get_storage_path
+from .storage import get_storage_path, load_table_filename
+from .agents.recommendation_agent import lookup as recommendation_agent
+from ..models.recommendation import RecommendationOutput
 
 
 async def embed_file() -> bool:
@@ -24,21 +31,41 @@ async def embed_file() -> bool:
     if await check_server_status() is False:
         return False
 
-    docs = []
+    documents = []
 
     try:
-        docs = SimpleDirectoryReader(input_dir=raw_path, recursive=True).load_data()
+        documents = SimpleDirectoryReader(
+            input_dir=raw_path,
+            recursive=True,
+        ).load_data(show_progress=True)
     except ValueError:
         logging.warning("저장소가 비어 있음")
         return False
 
     try:
-        index = VectorStoreIndex.from_documents(docs)
+        index = VectorStoreIndex.from_documents(documents, show_progress=True)
+
         if not os.path.exists(embed_path):
             os.makedirs(embed_path)
         index.storage_context.persist(persist_dir=embed_path)
     except APIConnectionError:
         logging.warning("모델 서버에 연결할 수 없음")
         return False
-
     return True
+
+
+async def generate_recommendations() -> RecommendationOutput:
+    """
+    사용자가 물어볼 만한 적절한 질문을 파일 내용을 기반으로 생성합니다.
+    """
+
+    # TODO: 업로드 파일에 대한 간략한 설명을 description으로 생성해낼 것
+
+    description = """
+    The data is a pandas dataframe with 112,191 entries 
+    and 18 columns representing various attributes of items in a store.
+    """
+
+    result = recommendation_agent(description=description)
+
+    return result

@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Request
 
-from ..services.session import set_user_id
-from ..services.generate import generate_message
 from ..models.generate import Answer, Question
+from ..services.generate import generate_message
+from ..services.session import set_user_id
+
 
 generate_router = APIRouter()
 
