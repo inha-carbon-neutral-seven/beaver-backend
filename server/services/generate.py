@@ -10,35 +10,37 @@ from langchain.chat_models import ChatOpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from openai import APIConnectionError
 
-from ..models.generate import Answer, Question
+from ..models.generate import Answer
 from .storage import load_embed_index, load_table_filename
 
 
-async def generate_message(question: Question) -> Answer:
+async def generate_message(question_message: str) -> Answer:
     """
     LLM에 질문을 전달해 답변을 생성합니다.
     """
-    logging.info("요청한 질문: %s", question.message)
+    logging.info("요청한 질문: %s", question_message)
 
     answer = None
     table_filename = await load_table_filename()
 
     if table_filename is not None:
         answer = await generate_message_from_table(
-            question=question,
+            question_message=question_message,
             pandas_dataframe_filename=table_filename,
         )
     else:
-        answer = await generate_message_from_document(question=question)
+        answer = await generate_message_from_document(question_message=question_message)
 
     logging.info("생성한 응답: %s", answer.message)
     return answer
 
 
-async def generate_message_from_table(question: Question, pandas_dataframe_filename: str) -> Answer:
+async def generate_message_from_table(
+    question_message: str, pandas_dataframe_filename: str
+) -> Answer:
     df = pd.read_csv(pandas_dataframe_filename)
 
-    llm = ChatOpenAI(temperature=0.6, model="gpt-4")
+    llm = ChatOpenAI(temperature=0.6, model="gpt-3.5-turbo")
 
     agent = create_pandas_dataframe_agent(
         llm=llm,
@@ -47,15 +49,16 @@ async def generate_message_from_table(question: Question, pandas_dataframe_filen
         return_intermediate_steps=True,
         handle_parsing_errors=True,
     )
+    agent.handle_parsing_errors = True
 
     logging.info("pandas dataframe agent 호출")
 
-    response = agent.invoke({"input": question.message})
+    response = agent.invoke({"input": question_message})
     answer = Answer(message=response["output"])
     return answer
 
 
-async def generate_message_from_document(question: Question) -> Answer:
+async def generate_message_from_document(question_message: str) -> Answer:
     message = None
 
     index = await load_embed_index()
@@ -66,7 +69,7 @@ async def generate_message_from_document(question: Question) -> Answer:
     try:
         logging.info("query engine 호출")
         query_engine = index.as_query_engine()
-        res = query_engine.query(question.message)
+        res = query_engine.query(question_message)
         message = res.response
 
     except APIConnectionError:

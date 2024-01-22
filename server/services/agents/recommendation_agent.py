@@ -13,7 +13,7 @@ def lookup(description: str) -> RecommendationOutput:
 
     recommendation_template = """
     Given the description {description}
-    about a dataframe from create THREE specific questions that retailers might want to know about their data in Korean:
+    about a document or dataframe from create THREE specific questions that retailers might want to know about their data in Korean:
     Strictly follow the question format with question marks.
     \n{format_instructions}
     """
