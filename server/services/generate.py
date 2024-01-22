@@ -43,6 +43,7 @@ async def generate_message_from_table(question: Question, pandas_dataframe_filen
     agent = create_pandas_dataframe_agent(
         llm=llm,
         df=df,
+        verbose=True,
         return_intermediate_steps=True,
         handle_parsing_errors=True,
     )
