@@ -38,12 +38,13 @@ async def generate_message(question: Question) -> Answer:
 async def generate_message_from_table(question: Question, pandas_dataframe_filename: str) -> Answer:
     df = pd.read_csv(pandas_dataframe_filename)
 
-    llm = ChatOpenAI(temperature=0.6)
+    llm = ChatOpenAI(temperature=0.6, model="gpt-4")
+
     agent = create_pandas_dataframe_agent(
         llm=llm,
         df=df,
-        verbose=False,
         return_intermediate_steps=True,
+        handle_parsing_errors=True,
     )
 
     logging.info("pandas dataframe agent 호출")
@@ -64,7 +65,6 @@ async def generate_message_from_document(question: Question) -> Answer:
     try:
         logging.info("query engine 호출")
         query_engine = index.as_query_engine()
-        question.message = f"메타 데이터를 제외하고 대답해줘. {question.message}"
         res = query_engine.query(question.message)
         message = res.response
 
