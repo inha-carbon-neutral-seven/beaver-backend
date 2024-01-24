@@ -23,7 +23,6 @@ async def check_server_status() -> bool:
 
     headers = {
         "Authorization": f"Bearer {openai_api_key}",
-        "OpenAI-Organization": organization_id,
     }
     url = api_base + "/models"
 
