@@ -9,11 +9,11 @@ def lookup(description: str) -> RecommendationOutput:
     """
     주어진 description을 기반으로 사용자가 물어볼 만한 적절한 질문을 생성하는 Agent
     """
-    llm = ChatOpenAI(temperature=0.6, model_name="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo")
 
     recommendation_template = """
     Given the description {description}
-    about a dataframe from create THREE specific questions that retailers might want to know about their data in Korean:
+    about a document from create THREE different specific questions that retailers might want to know about their data in Korean:
     Strictly follow the question format with question marks.
     \n{format_instructions}
     """

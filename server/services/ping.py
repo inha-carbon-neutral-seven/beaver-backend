@@ -16,16 +16,15 @@ async def check_server_status() -> bool:
     # 작업 시작
     api_base = os.getenv("OPENAI_API_BASE")
     openai_api_key = os.getenv("OPENAI_API_KEY")
-    organization_id = os.getenv("OPENAI_ORGANIZATION_ID")
 
     if api_base is None:
         api_base = "https://api.openai.com/v1"
 
     headers = {
         "Authorization": f"Bearer {openai_api_key}",
-        "OpenAI-Organization": organization_id,
     }
     url = api_base + "/models"
+
 
     try:
         response = requests.get(url, headers=headers, timeout=2)

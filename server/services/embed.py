@@ -12,6 +12,7 @@ from .ping import check_server_status
 from .storage import get_storage_path, load_table_filename
 from .agents.recommendation_agent import lookup as recommendation_agent
 from ..models.recommendation import RecommendationOutput
+from .generate import generate_message
 
 
 async def embed_file() -> bool:
@@ -59,12 +60,13 @@ async def generate_recommendations() -> RecommendationOutput:
     사용자가 물어볼 만한 적절한 질문을 파일 내용을 기반으로 생성합니다.
     """
 
-    # TODO: 업로드 파일에 대한 간략한 설명을 description으로 생성해낼 것
-
-    description = """
-    The data is a pandas dataframe with 112,191 entries 
-    and 18 columns representing various attributes of items in a store.
+    message = """
+    주어진 문서에 대응하는 title, subtitle, description을 각각 작성해줘.
     """
+    answer = await generate_message(question_message=message)
+    description = answer.message
+
+    logging.info("description text: \n%s", description)
 
     result = recommendation_agent(description=description)
 
