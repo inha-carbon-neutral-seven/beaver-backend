@@ -10,7 +10,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from openai import APIConnectionError
 
-from ..models.generate import Answer
+from ..models.generate import Answer, AnswerType
 from .storage import load_embed_index, load_table_filename
 
 
@@ -54,7 +54,10 @@ async def generate_message_from_table(
     logging.info("pandas dataframe agent 호출")
 
     response = agent.invoke({"input": question_message})
-    answer = Answer(message=response["output"])
+    answer = Answer(
+        type=AnswerType.TEXT,
+        message=response["output"],
+    )
     return answer
 
 
@@ -64,7 +67,10 @@ async def generate_message_from_document(question_message: str) -> Answer:
     index = await load_embed_index()
     if index is None:
         message = "파일이 첨부되지 않았습니다."
-        return Answer(message=message)
+        return Answer(
+            type=AnswerType.TEXT,
+            message=message,
+        )
 
     try:
         logging.info("query engine 호출")
@@ -76,4 +82,7 @@ async def generate_message_from_document(question_message: str) -> Answer:
         logging.warning("모델 서버에 연결할 수 없음")
         message = "모델 서버 상태를 확인해주세요."
 
-    return Answer(message=message)
+    return Answer(
+        type=AnswerType.TEXT,
+        message=message,
+    )

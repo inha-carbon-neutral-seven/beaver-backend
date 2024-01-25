@@ -65,6 +65,7 @@ async def generate_recommendations() -> RecommendationOutput:
     """
     answer = await generate_message(question_message=message)
     description = answer.message
+
     logging.info("description text: \n%s", description)
 
     result = recommendation_agent(description=description)

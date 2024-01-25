@@ -10,13 +10,13 @@ class DashboardType(str, Enum):
 
 
 class DashboardOutput(BaseModel):
-    title: str = Field(description="The title representing the visualization of the dashboard.")
     type: DashboardType = Field(
         description="""
         The type of data to be displayed on the dashboard. 
         Choose from DashboardType.LINE, DashboardType.PIE, DashboardType.BAR."""
     )
-    labels: List[int] = Field(
+    title: str = Field(description="The title representing the visualization of the dashboard.")
+    labels: List[str] = Field(
         description="List of labels for the dashboard, providing context to the displayed data."
     )
     data: List[int] = Field(
