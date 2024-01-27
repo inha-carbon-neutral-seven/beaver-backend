@@ -31,7 +31,7 @@ def lookup(description: str) -> RecapOutput:
         verbose=True,
     )
     raise NotImplementedError
-    
+
     result = chain.run(description=description)
 
     return recap_parser.parse(result)

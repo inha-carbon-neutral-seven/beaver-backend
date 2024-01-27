@@ -2,14 +2,15 @@
 POST /generate 
 에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
 """
+
 import logging
 
 import pandas as pd
+from operator import itemgetter
 
 from langchain.chat_models import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from openai import APIConnectionError
@@ -82,9 +83,7 @@ async def generate_message_from_document(question_message: str) -> Answer:
     try:
         logging.info("RAG starting...")
         # 벡터 유사도 검색
-        retriever = vectorstore.as_retriever(search_type="similarity", 
-                                             search_kwargs={"k": 3})
-        
+        retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
         # llm 정의
         llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
@@ -99,7 +98,7 @@ async def generate_message_from_document(question_message: str) -> Answer:
 
         Question: {question}
 
-        Answer: in Korean"""
+        Answer in the following language: {language}"""
 
         custom_rag_prompt = PromptTemplate.from_template(template)
 
@@ -108,17 +107,19 @@ async def generate_message_from_document(question_message: str) -> Answer:
 
         # LCEL 정의
         rag_chain = (
-            {"context": retriever | format_docs, "question": RunnablePassthrough()}
+            {
+                "context": itemgetter("question") | retriever | format_docs,
+                "question": itemgetter("question"),
+                "language": itemgetter("language"),
+            }
             | custom_rag_prompt
             | llm
             | StrOutputParser()
         )
 
         # 답변 생성
-        message = "" 
-        for chunk in rag_chain.stream(question_message):
-            message += chunk
-        
+        message = rag_chain.invoke({"question": question_message, "language": "Korean"})
+
         logging.info("Answer: message")
         logging.info("RAG finished")
 

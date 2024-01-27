@@ -4,9 +4,6 @@
 
 import os
 
-from llama_index import StorageContext, load_index_from_storage
-from llama_index.indices.base import BaseIndex
-
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 
@@ -18,7 +15,7 @@ TABLE_EXT = [".csv", ".tsv", ".xlsx"]
 
 def get_storage_path() -> str:
     """
-    storage path를 가져옵니다.8787
+    storage path를 가져옵니다.
     """
     user_id = get_user_id()
     storage_path = os.path.join("./server/storage", str(user_id))
@@ -93,7 +90,7 @@ async def load_table_filename() -> str | None:
     return table_file_path
 
 
-async def load_embed_index() -> BaseIndex:
+async def load_embed_index() -> Chroma:
     """
     임베딩 벡터 데이터를 가져와 인덱스를 호출합니다.
     """
@@ -106,8 +103,6 @@ async def load_embed_index() -> BaseIndex:
         """
         vectorstore = Chroma(persist_directory="./chroma_db", embedding=OpenAIEmbeddings())
 
-        ### storage_context = StorageContext.from_defaults(persist_dir=embed_path) 
-        ### index = load_index_from_storage(storage_context)
         return vectorstore
     except FileNotFoundError:  # 사용자로부터 임베딩 파일을 받지 못했을 때 예외를 표출함
         return None

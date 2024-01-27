@@ -2,6 +2,7 @@
 GET /ping 
 에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
 """
+
 import logging
 import os
 
@@ -24,7 +25,6 @@ async def check_server_status() -> bool:
         "Authorization": f"Bearer {openai_api_key}",
     }
     url = api_base + "/models"
-
 
     try:
         response = requests.get(url, headers=headers, timeout=2)

@@ -2,10 +2,10 @@
 GET /embed
 에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
 """
+
 import logging
 import os
 
-#from llama_index import SimpleDirectoryReader, VectorStoreIndex
 from openai import APIConnectionError
 
 from langchain_community.document_loaders import DirectoryLoader
@@ -23,7 +23,7 @@ from .generate import generate_message
 
 async def embed_file() -> bool:
     """
-    저장소에 있는 파일을 모델 서버로 보내 임베딩 결과를 받아옴
+    저장소에 있는 파일을 모델 서버로 보내 임베딩 결과(bool)를 받아옴
     """
     storage_path = get_storage_path()
     raw_path = os.path.join(storage_path, "raw")
@@ -47,10 +47,6 @@ async def embed_file() -> bool:
         loader = DirectoryLoader(raw_path, glob="*.txt", loader_cls=TextLoader, show_progress=True)
         documents = loader.load()
 
-        # documents = SimpleDirectoryReader(
-        #     input_dir=raw_path,
-        #     recursive=True,
-        # ).load_data(show_progress=True)
     except ValueError:
         logging.warning("저장소가 비어 있음")
         return False
@@ -65,14 +61,13 @@ async def embed_file() -> bool:
         # split documents
         all_splits = text_splitter.split_documents(documents)
 
-        ### 라마 인덱스 index = VectorStoreIndex.from_documents(documents, show_progress=True)
-
         if not os.path.exists(embed_path):
             os.makedirs(embed_path)
-        ### 라마 인덱스 old : index.storage_context.persist(persist_dir=embed_path)
-        
-        # store documents
-        vectorstore = Chroma.from_documents(documents=all_splits, embedding=OpenAIEmbeddings(),persist_directory=embed_path)
+
+        # store vector
+        vectorstore = Chroma.from_documents(
+            documents=all_splits, embedding=OpenAIEmbeddings(), persist_directory=embed_path
+        )
     except APIConnectionError:
         logging.warning("모델 서버에 연결할 수 없음")
         return False
