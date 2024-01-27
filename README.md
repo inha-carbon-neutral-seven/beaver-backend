@@ -27,3 +27,12 @@ pre-commit run --all-files // check setting
 
 ![image](https://github.com/inha-carbon-neutral-seven/beaver-web-server/assets/80192345/18b3f95b-0199-4c4d-9c2d-f01b0ebe4f8b)
 
+
+## 랭체인 문서 기록
+https://python.langchain.com/docs/integrations/document_loaders/unstructured_file
+https://python.langchain.com/docs/integrations/vectorstores/chroma
+https://python.langchain.com/docs/modules/data_connection/document_loaders/file_directory
+https://python.langchain.com/docs/use_cases/question_answering/quickstart
+
+#### With Memory and returning source documents 
+https://python.langchain.com/docs/expression_language/cookbook/retrieval
