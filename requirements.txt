@@ -12,3 +12,9 @@ langchain
 langchain_experimental
 llama_index
 pypdf
+langchain-community 
+langchainhub 
+langchain-openai 
+chromadb 
+unstructured[all-docs]
+

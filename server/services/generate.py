@@ -7,6 +7,10 @@ import logging
 import pandas as pd
 
 from langchain.chat_models import ChatOpenAI
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from openai import APIConnectionError
 
@@ -62,10 +66,13 @@ async def generate_message_from_table(
 
 
 async def generate_message_from_document(question_message: str) -> Answer:
+    """
+    문서로부터 답변을 생성합니다.
+    """
     message = None
 
-    index = await load_embed_index()
-    if index is None:
+    vectorstore = await load_embed_index()
+    if vectorstore is None:
         message = "파일이 첨부되지 않았습니다."
         return Answer(
             type=AnswerType.TEXT,
@@ -73,13 +80,51 @@ async def generate_message_from_document(question_message: str) -> Answer:
         )
 
     try:
-        logging.info("query engine 호출")
-        query_engine = index.as_query_engine()
-        res = query_engine.query(question_message)
-        message = res.response
+        logging.info("RAG starting...")
+        # 벡터 유사도 검색
+        retriever = vectorstore.as_retriever(search_type="similarity", 
+                                             search_kwargs={"k": 3})
+        
+
+        # llm 정의
+        llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+
+        # 템플릿 정의
+        template = """You are an assistant for question-answering tasks. 
+        Use the following pieces of retrieved context to answer the question. 
+        If you don't know the answer, just say that you don't know. 
+        Use three sentences maximum and keep the answer concise.
+
+        Context: {context}
+
+        Question: {question}
+
+        Answer: in Korean"""
+
+        custom_rag_prompt = PromptTemplate.from_template(template)
+
+        def format_docs(docs):
+            return "\n\n".join(doc.page_content for doc in docs)
+
+        # LCEL 정의
+        rag_chain = (
+            {"context": retriever | format_docs, "question": RunnablePassthrough()}
+            | custom_rag_prompt
+            | llm
+            | StrOutputParser()
+        )
+
+        # 답변 생성
+        message = "" 
+        for chunk in rag_chain.stream(question_message):
+            message += chunk
+        
+        logging.info("Answer: message")
+        logging.info("RAG finished")
 
     except APIConnectionError:
-        logging.warning("모델 서버에 연결할 수 없음")
+        logging.warning("1. 토큰 초과 버그")
+        logging.warning("2. 모델 서버에 연결할 수 없음")
         message = "모델 서버 상태를 확인해주세요."
 
     return Answer(
