@@ -3,32 +3,44 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
-class DashboardType(str, Enum):
-    LINE = "LINE"
-    PIE = "PIE"
-    BAR = "BAR"
+class ChartType(str, Enum):
+    LINE = "line"
+    AREA = "area"
+    BAR = "bar"
+    COLUMN = "column"
+    BOXPLOT = "boxPlot"
+    RANGEBAR = "rangeBar"
+    RANGEAREA = "rangeArea"
+    HEATMAP = "heatmap"
+    TREEMAP = "treemap"
+    RADAR = "radar"
+    RADIALBAR = "radialbar"
+    PIE = "pie"
+    DONUT = "donut"
+    
+class Series(BaseModel):
+    name: str
+    type: ChartType
+    data: List[int]
+    
 
 
-class DashboardOutput(BaseModel):
-    type: DashboardType = Field(
+class ChartOutput(BaseModel):
+    series: List[Series] = Field(
         description="""
-        The type of data to be displayed on the dashboard. 
-        Choose from DashboardType.LINE, DashboardType.PIE, DashboardType.BAR."""
+        List of series points for the dashboard, 
+        each containing a name, type, and data points."""
     )
-    title: str = Field(description="The title representing the visualization of the dashboard.")
     labels: List[str] = Field(
         description="List of labels for the dashboard, providing context to the displayed data."
     )
-    data: List[int] = Field(
-        description="""
-        List of data points for the dashboard, 
-        representing the actual values to be visualized."""
-    )
+    title: str = Field(description="The title representing the visualization of the dashboard.")
+    
+    
 
     def to_dict(self):
         return {
-            "title": self.title,
-            "type": self.type,
+            "series": [series_item.dict() for series_item in self.series],
             "labels": self.labels,
-            "data": self.data,
+            "title": self.title,
         }
