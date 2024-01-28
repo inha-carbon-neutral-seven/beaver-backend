@@ -21,7 +21,7 @@ async def embed(request: Request) -> EmbedOutput:
     status = await embed_file()
 
     if status is False:
-        result = EmbedOutput(status=False, recap=None, recommendations=None, dashboards=None)
+        result = EmbedOutput(status=False, recap=None, recommendations=None, chart=None)
         return result
 
     recap_example = RecapOutput(
