@@ -14,7 +14,6 @@ class RecapOutput(BaseModel):
     )
     keywords: List[str] = Field(
         description="List of frequently used important WORDs or terms in the document.",
-        max_items=3,
     )
 
     def to_dict(self):

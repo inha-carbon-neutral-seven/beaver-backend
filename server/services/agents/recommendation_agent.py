@@ -1,5 +1,5 @@
 from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
+from langchain.chat_models.openai import ChatOpenAI
 from langchain.chains import LLMChain
 
 from ..output_parsers.output_parsers import RecommendationOutput, recommendation_parser

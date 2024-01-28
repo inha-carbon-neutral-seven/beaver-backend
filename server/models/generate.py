@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 
 
 class AnswerType(str, Enum):
-    TEXT = "TEXT"
-    DASHBOARD = "DASHBOARD"
+    TEXT = "text"
+    CHART = "chart"
 
 
 class Question(BaseModel):
