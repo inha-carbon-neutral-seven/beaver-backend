@@ -1,6 +1,6 @@
 from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import LLMChain, RetrievalQAWithSourcesChain
+from langchain.chat_models.openai import ChatOpenAI
+from langchain.chains import RetrievalQAWithSourcesChain
 from langchain.chains.summarize import load_summarize_chain
 
 from ..output_parsers.output_parsers import RecapOutput, recap_parser

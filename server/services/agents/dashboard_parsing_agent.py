@@ -1,4 +1,4 @@
-from langchain.chat_models import ChatOpenAI
+from langchain.chat_models.openai import ChatOpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from pandas import DataFrame
 

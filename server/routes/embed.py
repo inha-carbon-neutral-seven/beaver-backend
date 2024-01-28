@@ -3,10 +3,9 @@ from fastapi import APIRouter, Request
 from ..services.embed import embed_file, generate_recommendations
 from ..services.session import set_user_id
 
-from ..models.recommendation import RecommendationOutput
 from ..models.embed import EmbedOutput
 from ..models.recap import RecapOutput
-from ..models.dashboard import ChartOutput, ChartType, Series
+from ..models.chart import ChartOutput, ChartType, Series
 
 embed_router = APIRouter()
 
@@ -30,7 +29,7 @@ async def embed(request: Request) -> EmbedOutput:
         summary="Brief overview of the main content",
         keywords=["keyword1", "keyword2", "keyword3"],
     )
-    chart_example = [
+    charts_example = [
         ChartOutput(
             type=ChartType.LINE,
             title="Product Trends by Month",
@@ -39,7 +38,7 @@ async def embed(request: Request) -> EmbedOutput:
                 Series(
                     name="Product A",
                     type=ChartType.LINE,
-                    data=[10, 41, 35, 51, 49, 62, 69, 91, 148]
+                    data=[10, 41, 35, 51, 49, 62, 69, 91, 148],
                 )
             ],
         ),
@@ -50,6 +49,6 @@ async def embed(request: Request) -> EmbedOutput:
         status=True,
         recap=recap_example,
         recommendations=answer.recommendations,
-        chart=chart_example,
+        charts=charts_example,
     )
     return result

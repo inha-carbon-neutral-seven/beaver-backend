@@ -17,30 +17,27 @@ class ChartType(str, Enum):
     RADIALBAR = "radialbar"
     PIE = "pie"
     DONUT = "donut"
-    
+
+
 class Series(BaseModel):
     name: str
     type: ChartType
     data: List[int]
-    
 
 
 class ChartOutput(BaseModel):
     series: List[Series] = Field(
-        description="""
-        List of series points for the dashboard, 
+        description="""List of series points for the chart,
         each containing a name, type, and data points."""
     )
     labels: List[str] = Field(
-        description="List of labels for the dashboard, providing context to the displayed data."
+        description="List of labels for the chart, providing context to the displayed data."
     )
-    title: str = Field(description="The title representing the visualization of the dashboard.")
-    
-    
+    title: str = Field(description="The title representing the visualization of the chart.")
 
     def to_dict(self):
         return {
-            "series": [series_item.dict() for series_item in self.series],
+            "series": self.series,
             "labels": self.labels,
             "title": self.title,
         }

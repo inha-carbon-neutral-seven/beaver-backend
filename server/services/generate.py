@@ -4,14 +4,12 @@ POST /generate
 """
 
 import logging
-
-import pandas as pd
 from operator import itemgetter
 
-from langchain.chat_models import ChatOpenAI
+import pandas as pd
+from langchain.chat_models.openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from openai import APIConnectionError
 
