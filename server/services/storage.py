@@ -4,8 +4,9 @@
 
 import os
 
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores.chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
+
 
 from .session import get_user_id
 
@@ -22,14 +23,14 @@ def get_storage_path() -> str:
     return storage_path
 
 
-async def clear_storage() -> None:
+def clear_storage() -> None:
     """
     저장소를 비웁니다.
     """
     storage_path = get_storage_path()
-    raw_path = os.path.join(storage_path, "raw")
-    embed_path = os.path.join(storage_path, "embed")
-    structured_path = os.path.join(storage_path, "structured")
+    document_path = os.path.join(storage_path, "document")
+    chroma_path = os.path.join(storage_path, "chroma")
+    table_path = os.path.join(storage_path, "table")
 
     # 기존 디렉토리 및 하위 내용 삭제
     if os.path.exists(storage_path):
@@ -41,12 +42,13 @@ async def clear_storage() -> None:
         os.rmdir(storage_path)
 
     #  디렉토리 재생성
-    os.makedirs(raw_path)
-    os.makedirs(embed_path)
-    os.makedirs(structured_path)
+    os.makedirs(storage_path)
+    os.makedirs(document_path)
+    os.makedirs(chroma_path)
+    os.makedirs(table_path)
 
 
-async def save_file(contents: bytes, filename: str, description: str) -> None:
+def save_file(contents: bytes, filename: str, description: str) -> None:
     """
     파일을 확장자에 맞추어 저장합니다.
     """
@@ -60,22 +62,22 @@ async def save_file(contents: bytes, filename: str, description: str) -> None:
     new_filename = f"{description}{file_ext}"
 
     if file_ext.lower() in TABLE_EXT:
-        file_path = os.path.join(storage_path, "structured", new_filename)
+        file_path = os.path.join(storage_path, "table", new_filename)
     else:
-        file_path = os.path.join(storage_path, "raw", new_filename)
+        file_path = os.path.join(storage_path, "document", new_filename)
 
     with open(file_path, "wb") as fp:
         fp.write(contents)
 
 
-async def load_table_filename() -> str | None:
+def load_table_filename() -> str | None:
     """
     path에 있는 첫 번째 테이블 파일 경로를 전달하는 함수
     """
     storage_path = get_storage_path()
-    structured_path = os.path.join(storage_path, "structured")
+    table_path = os.path.join(storage_path, "table")
 
-    files = os.listdir(structured_path)
+    files = os.listdir(table_path)
 
     # 지원하는 확장자를 가진 파일 찾기
     table_file = next(
@@ -85,23 +87,20 @@ async def load_table_filename() -> str | None:
     if not table_file:
         return None
 
-    table_file_path = os.path.join(structured_path, table_file)
+    table_file_path = os.path.join(table_path, table_file)
 
     return table_file_path
 
 
-async def load_embed_index() -> Chroma:
+def load_vectorstore() -> Chroma | None:
     """
     임베딩 벡터 데이터를 가져와 인덱스를 호출합니다.
     """
     storage_path = get_storage_path()
-    embed_path = os.path.join(storage_path, "embed")
+    chroma_path = os.path.join(storage_path, "chroma")
 
     try:
-        """
-        chroma 로 부터 벡터스토어 인덱스를 호출합니다.
-        """
-        vectorstore = Chroma(persist_directory="./chroma_db", embedding=OpenAIEmbeddings())
+        vectorstore = Chroma(persist_directory=chroma_path, embedding_function=OpenAIEmbeddings())
 
         return vectorstore
     except FileNotFoundError:  # 사용자로부터 임베딩 파일을 받지 못했을 때 예외를 표출함

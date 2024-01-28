@@ -15,5 +15,5 @@ async def generate(request: Request, question: Question) -> Answer:
     """
 
     set_user_id(request=request)
-    answer = await generate_message(question.message)
+    answer = generate_message(question.message)
     return answer

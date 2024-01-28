@@ -18,4 +18,4 @@ async def upload(request: Request, file: UploadFile = Form(...), description: st
     contents = await file.read()
     filename = file.filename.replace(" ", "-")
 
-    return await upload_file(contents, filename, description)
+    return upload_file(contents, filename, description)

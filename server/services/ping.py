@@ -9,7 +9,7 @@ import os
 import requests
 
 
-async def check_server_status() -> bool:
+def check_server_status() -> bool:
     """
     모델 서버의 상태를 확인하는 함수
     """

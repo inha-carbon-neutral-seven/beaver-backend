@@ -9,10 +9,10 @@ import os
 from openai import APIConnectionError
 
 from langchain_community.document_loaders import DirectoryLoader
-from langchain_community.document_loaders import TextLoader
+from langchain_community.vectorstores.chroma import Chroma
+from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
+
 
 from .ping import check_server_status
 from .storage import get_storage_path, load_table_filename
@@ -21,60 +21,52 @@ from ..models.recommendation import RecommendationOutput
 from .generate import generate_message
 
 
-async def embed_file() -> bool:
+def embed_file() -> bool:
     """
     저장소에 있는 파일을 모델 서버로 보내 임베딩 결과(bool)를 받아옴
     """
     storage_path = get_storage_path()
-    raw_path = os.path.join(storage_path, "raw")
-    embed_path = os.path.join(storage_path, "embed")
-    table_filename = await load_table_filename()
+    document_path = os.path.join(storage_path, "document")
+    chroma_path = os.path.join(storage_path, "chroma")
+    table_filename = load_table_filename()
 
     if table_filename is not None:
         logging.info("테이블 파일은 임베딩하지 않음")
         return True
 
     # 모델 서버가 불안정하면 임베딩을 진행하지 않음
-    if await check_server_status() is False:
+    if check_server_status() is False:
         return False
 
-    documents = []
-
     try:
-        """
-        디렉토리 읽어옵니다.
-        """
-        loader = DirectoryLoader(raw_path, glob="*.txt", loader_cls=TextLoader, show_progress=True)
+        # 디렉토리를 읽어옵니다.
+        loader = DirectoryLoader(document_path, show_progress=True)
         documents = loader.load()
 
     except ValueError:
-        logging.warning("저장소가 비어 있음")
+        logging.warning("임베딩 실패: 저장소가 비어 있음")
         return False
 
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000, chunk_overlap=200, add_start_index=True
+    )
+    # split documents
+    splitted_documents = text_splitter.split_documents(documents)
+
     try:
-        """
-        문서를 자르고 임베딩 벡터를 생성합니다.
-        """
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=200, add_start_index=True
+        Chroma.from_documents(
+            documents=splitted_documents,
+            persist_directory=chroma_path,
+            embedding=OpenAIEmbeddings(),
         )
-        # split documents
-        all_splits = text_splitter.split_documents(documents)
 
-        if not os.path.exists(embed_path):
-            os.makedirs(embed_path)
-
-        # store vector
-        vectorstore = Chroma.from_documents(
-            documents=all_splits, embedding=OpenAIEmbeddings(), persist_directory=embed_path
-        )
     except APIConnectionError:
         logging.warning("모델 서버에 연결할 수 없음")
         return False
     return True
 
 
-async def generate_recommendations() -> RecommendationOutput:
+def generate_recommendations() -> RecommendationOutput:
     """
     사용자가 물어볼 만한 적절한 질문을 파일 내용을 기반으로 생성합니다.
     """
@@ -82,7 +74,7 @@ async def generate_recommendations() -> RecommendationOutput:
     message = """
     주어진 문서에 대응하는 title, subtitle, description을 각각 작성해줘.
     """
-    answer = await generate_message(question_message=message)
+    answer = generate_message(question_message=message)
     description = answer.message
 
     logging.info("description text: \n%s", description)
