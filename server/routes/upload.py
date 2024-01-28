@@ -14,5 +14,6 @@ async def upload(file: UploadFile = Form(...), description: str = Form(...)):
 
     contents = await file.read()
     filename = file.filename.replace(" ", "-")
+    description = description.replace(" ", "-")
 
     return upload_file(contents, filename, description)

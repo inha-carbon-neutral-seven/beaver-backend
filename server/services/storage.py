@@ -97,9 +97,9 @@ def save_file(contents: bytes, filename: str, description: str) -> None:
         fp.write(contents)
 
 
-def load_table_filename() -> str | None:
+def load_df_path() -> str | None:
     """
-    path에 있는 첫 번째 테이블 파일 경로를 전달하는 함수
+    path에 있는 첫 번째 테이블 파일 경로를 전달하는 함수, 테이블 파일이 없다면 None을 반환합니다.
     """
     table_path = get_table_path()
     files_in_path = os.listdir(table_path)
@@ -127,5 +127,5 @@ def load_vectorstore() -> Chroma | None:
         return vectorstore
 
     except ValueError:  # 임베딩 파일이나 세션을 확인하지 못하는 경우
-        logging.warn("vectorstore를 가져오지 못함")
+        logging.warning("vectorstore를 가져오지 못함")
         return None

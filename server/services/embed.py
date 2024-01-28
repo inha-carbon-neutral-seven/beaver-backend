@@ -5,21 +5,19 @@ GET /embed
 
 import logging
 
-from openai import APIConnectionError
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-
 from .ping import check_server_status
-from .storage import get_document_path, get_chroma_path, load_table_filename
+from .storage import get_document_path, get_chroma_path
 from .agents.recommendation_agent import lookup as recommendation_agent
 from ..models.recommendation import RecommendationOutput
 from .generate import generate_message
 
 
-def embed_file() -> bool:
+def embed_document() -> bool:
     """
     저장소에 있는 파일을 모델 서버로 보내 임베딩 결과를 받아옵니다.
     """
@@ -27,11 +25,6 @@ def embed_file() -> bool:
     # 모델 서버가 불안정하면 임베딩을 진행하지 않음
     if check_server_status() is False:
         return False
-
-    # 테이블 파일은 임베딩하지 않음
-    if load_table_filename() is not None:
-        logging.info("테이블 파일은 임베딩하지 않음")
-        return True
 
     # 문서 파일 임베딩
     document_path = get_document_path()

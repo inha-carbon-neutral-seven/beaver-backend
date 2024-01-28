@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from ..services.embed import embed_file, generate_recommendations
+from ..services.embed import embed_document, generate_recommendations
 from ..models.embed import EmbedOutput
 from ..models.recap import RecapOutput
 from ..models.chart import ChartOutput, ChartType, Series
@@ -14,7 +14,7 @@ async def embed() -> EmbedOutput:
     인덱스를 모델 서버가 이해할 수 있는 형태로 임베딩합니다.
     """
 
-    status = embed_file()
+    status = embed_document()
 
     if status is False:
         result = EmbedOutput(status=False, recap=None, recommendations=None, chart=None)

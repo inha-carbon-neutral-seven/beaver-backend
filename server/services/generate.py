@@ -14,7 +14,7 @@ from langchain_experimental.agents import create_pandas_dataframe_agent
 from openai import APIConnectionError
 
 from ..models.generate import Answer, AnswerType
-from .storage import load_vectorstore, load_table_filename
+from .storage import load_vectorstore, load_df_path
 
 
 def generate_message(question_message: str) -> Answer:
@@ -24,13 +24,10 @@ def generate_message(question_message: str) -> Answer:
     logging.info("요청한 질문: %s", question_message)
 
     answer = None
-    table_filename = load_table_filename()
+    df_path = load_df_path()
 
-    if table_filename is not None:
-        answer = generate_message_from_table(
-            question_message=question_message,
-            df_filename=table_filename,
-        )
+    if df_path:
+        answer = generate_message_from_table(question_message=question_message, df_path=df_path)
     else:
         answer = generate_message_from_document(question_message=question_message)
 
@@ -38,8 +35,8 @@ def generate_message(question_message: str) -> Answer:
     return answer
 
 
-def generate_message_from_table(question_message: str, df_filename: str) -> Answer:
-    df = pd.read_csv(df_filename)
+def generate_message_from_table(question_message: str, df_path: str) -> Answer:
+    df = pd.read_csv(df_path)
 
     llm = ChatOpenAI(temperature=0.6, model="gpt-3.5-turbo")
 
