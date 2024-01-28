@@ -18,8 +18,6 @@ def lookup(description: str) -> RecommendationOutput:
     \n{format_instructions}
     """
 
-    # TODO: FewShotPromptTemplate 로 바꿀 것
-
     recommendation_prompt_template = PromptTemplate(
         input_variables=["description"],
         template=recommendation_template,

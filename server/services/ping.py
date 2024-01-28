@@ -18,7 +18,7 @@ def check_server_status() -> bool:
     api_base = os.getenv("OPENAI_API_BASE")
     openai_api_key = os.getenv("OPENAI_API_KEY")
 
-    if api_base is None:
+    if not api_base:
         api_base = "https://api.openai.com/v1"
 
     headers = {

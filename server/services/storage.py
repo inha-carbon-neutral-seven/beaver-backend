@@ -3,10 +3,10 @@
 """
 
 import os
+import logging
 
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
-
 
 from .session import get_user_id
 
@@ -16,11 +16,40 @@ TABLE_EXT = [".csv", ".tsv", ".xlsx"]
 
 def get_storage_path() -> str:
     """
-    storage path를 가져옵니다.
+    사용자의 저장소 경로를 가져옵니다.
     """
     user_id = get_user_id()
     storage_path = os.path.join("./server/storage", str(user_id))
     return storage_path
+
+
+def _get_subdirectory_path(subdirectory_name: str) -> str:
+    """
+    사용자의 서브 디렉토리 경로를 가져옵니다.
+    """
+    storage_path = get_storage_path()
+    return os.path.join(storage_path, subdirectory_name)
+
+
+def get_document_path() -> str:
+    """
+    문서 경로를 가져옵니다.
+    """
+    return _get_subdirectory_path("document")
+
+
+def get_table_path() -> str:
+    """
+    테이블 경로를 가져옵니다.
+    """
+    return _get_subdirectory_path("table")
+
+
+def get_chroma_path() -> str:
+    """
+    크로마 벡터스토어 경로를 가져옵니다.
+    """
+    return _get_subdirectory_path("chroma")
 
 
 def clear_storage() -> None:
@@ -28,9 +57,9 @@ def clear_storage() -> None:
     저장소를 비웁니다.
     """
     storage_path = get_storage_path()
-    document_path = os.path.join(storage_path, "document")
-    chroma_path = os.path.join(storage_path, "chroma")
-    table_path = os.path.join(storage_path, "table")
+    document_path = get_document_path()
+    chroma_path = get_chroma_path()
+    table_path = get_table_path()
 
     # 기존 디렉토리 및 하위 내용 삭제
     if os.path.exists(storage_path):
@@ -53,18 +82,16 @@ def save_file(contents: bytes, filename: str, description: str) -> None:
     파일을 확장자에 맞추어 저장합니다.
     """
 
-    file_path = None
-    file_ext = None
-    storage_path = get_storage_path()
-
     # 확장자 추출
     _, file_ext = os.path.splitext(filename)
-    new_filename = f"{description}{file_ext}"
+    new_filename = f"{description + file_ext}"
 
     if file_ext.lower() in TABLE_EXT:
-        file_path = os.path.join(storage_path, "table", new_filename)
+        save_path = get_table_path()
     else:
-        file_path = os.path.join(storage_path, "document", new_filename)
+        save_path = get_document_path()
+
+    file_path = os.path.join(save_path, new_filename)
 
     with open(file_path, "wb") as fp:
         fp.write(contents)
@@ -74,34 +101,31 @@ def load_table_filename() -> str | None:
     """
     path에 있는 첫 번째 테이블 파일 경로를 전달하는 함수
     """
-    storage_path = get_storage_path()
-    table_path = os.path.join(storage_path, "table")
-
-    files = os.listdir(table_path)
+    table_path = get_table_path()
+    files_in_path = os.listdir(table_path)
 
     # 지원하는 확장자를 가진 파일 찾기
     table_file = next(
-        (file for file in files if any(file.endswith(ext) for ext in TABLE_EXT)), None
+        (file for file in files_in_path if any(file.endswith(ext) for ext in TABLE_EXT)), None
     )
 
     if not table_file:
         return None
 
-    table_file_path = os.path.join(table_path, table_file)
-
-    return table_file_path
+    file_path = os.path.join(table_path, table_file)
+    return file_path
 
 
 def load_vectorstore() -> Chroma | None:
     """
     임베딩 벡터 데이터를 가져와 인덱스를 호출합니다.
     """
-    storage_path = get_storage_path()
-    chroma_path = os.path.join(storage_path, "chroma")
+    chroma_path = get_chroma_path()
 
     try:
         vectorstore = Chroma(persist_directory=chroma_path, embedding_function=OpenAIEmbeddings())
-
         return vectorstore
-    except FileNotFoundError:  # 사용자로부터 임베딩 파일을 받지 못했을 때 예외를 표출함
+
+    except ValueError:  # 임베딩 파일이나 세션을 확인하지 못하는 경우
+        logging.warn("vectorstore를 가져오지 못함")
         return None

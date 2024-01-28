@@ -69,7 +69,7 @@ def generate_message_from_document(question_message: str) -> Answer:
     message = None
 
     vectorstore = load_vectorstore()
-    if vectorstore is None:
+    if not vectorstore:
         message = "파일이 첨부되지 않았습니다."
         return Answer(
             type=AnswerType.TEXT,

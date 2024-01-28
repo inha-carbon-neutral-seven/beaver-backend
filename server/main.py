@@ -2,14 +2,14 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routes.embed import embed_router
 from .routes.generate import generate_router
 from .routes.ping import ping_router
 from .routes.upload import upload_router
-
+from .services.session import set_user_id
 
 app = FastAPI()
 
@@ -27,6 +27,16 @@ app.include_router(ping_router)
 app.include_router(upload_router)
 app.include_router(embed_router)
 app.include_router(generate_router)
+
+
+@app.middleware("http")
+async def add_user_id_to_request(request: Request, call_next):
+    """
+    모든 요청에 대해 사용자 ID를 추가합니다.
+    """
+    set_user_id(request)
+    response = await call_next(request)
+    return response
 
 
 @app.on_event("startup")
