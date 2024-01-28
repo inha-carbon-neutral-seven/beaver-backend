@@ -96,7 +96,7 @@ def generate_message_from_document(question_message: str) -> Answer:
         custom_rag_prompt = PromptTemplate.from_template(template)
 
         def format_docs(docs):
-            # TODO: top-k docs를 클라이언트에게 전달할 것
+            # todo: top-k docs를 클라이언트에게 전달할 것
             return "\n\n".join(doc.page_content for doc in docs)
 
         # LCEL 정의

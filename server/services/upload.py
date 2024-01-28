@@ -38,16 +38,18 @@ def save_table_documentation(table_name: str, df_path: str):
     documentation = f"""
 # table documentation
 - This document is a description of the table file attached by the retailer to request analysis of his/her data.
-- NOTE: The original table name is '{table_name}', but a new name that matches the table information is needed. 
+- NOTE: The original title is '{table_name}', but a new name that matches the table information is needed. 
 
 ## information of dataframe
-- result of pd.DataFrame.info() is below:
+- Result of pd.DataFrame.info()
+- You can parse the necessary keywords by looking at them below.
 ```
 {df_info}
 ```
 
 ## Brief table contents
-- First 5 rows of the DataFrame is below:
+- First 5 rows of the DataFrame
+- can understand the flow of the document by looking below.
 ```
 {str(df.head())}
 ```
