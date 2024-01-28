@@ -21,7 +21,6 @@ class ChartType(str, Enum):
 
 class Series(BaseModel):
     name: str
-    type: ChartType
     data: List[int]
 
 
@@ -34,10 +33,16 @@ class ChartOutput(BaseModel):
         description="List of labels for the chart, providing context to the displayed data."
     )
     title: str = Field(description="The title representing the visualization of the chart.")
+    type: ChartType = Field(
+        description="""
+        The type of data to be displayed on the dashboard. 
+        Choose from ChartType.LINE, ChartType.PIE, ChartType.BAR."""
+    )
 
     def to_dict(self):
         return {
             "series": self.series,
             "labels": self.labels,
             "title": self.title,
+            "type": self.type,
         }

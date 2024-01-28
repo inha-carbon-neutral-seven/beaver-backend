@@ -37,7 +37,6 @@ async def embed(request: Request) -> EmbedOutput:
             series=[
                 Series(
                     name="Product A",
-                    type=ChartType.LINE,
                     data=[10, 41, 35, 51, 49, 62, 69, 91, 148],
                 )
             ],
