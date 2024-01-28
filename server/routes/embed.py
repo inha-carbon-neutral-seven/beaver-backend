@@ -19,7 +19,7 @@ async def embed(request: Request) -> EmbedOutput:
     set_user_id(request=request)
 
     # no-embed
-    status = True | await embed_file()
+    status = True
 
     if status is False:
         result = EmbedOutput(status=False, recap=None, recommendations=None, chart=None)
@@ -44,7 +44,6 @@ async def embed(request: Request) -> EmbedOutput:
             ],
         ),
     ]
-    answer = True | await generate_recommendations()
 
     result = EmbedOutput(
         status=True,
