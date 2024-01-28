@@ -6,7 +6,7 @@ from ..services.session import set_user_id
 from ..models.recommendation import RecommendationOutput
 from ..models.embed import EmbedOutput
 from ..models.recap import RecapOutput
-from ..models.dashboard import DashboardType, DashboardOutput
+from ..models.dashboard import ChartOutput, ChartType, Series
 
 embed_router = APIRouter()
 
@@ -21,7 +21,7 @@ async def embed(request: Request) -> EmbedOutput:
     status = await embed_file()
 
     if status is False:
-        result = EmbedOutput(status=False, recap=None, recommendations=None, dashboards=None)
+        result = EmbedOutput(status=False, recap=None, recommendations=None, chart=None)
         return result
 
     recap_example = RecapOutput(
@@ -30,12 +30,18 @@ async def embed(request: Request) -> EmbedOutput:
         summary="Brief overview of the main content",
         keywords=["keyword1", "keyword2", "keyword3"],
     )
-    dashboards_example = [
-        DashboardOutput(
-            type=DashboardType.LINE,
+    chart_example = [
+        ChartOutput(
+            type=ChartType.LINE,
             title="Product Trends by Month",
             labels=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
-            data=[10, 41, 35, 51, 49, 62, 69, 91, 148],
+            series=[
+                Series(
+                    name="Product A",
+                    type=ChartType.LINE,
+                    data=[10, 41, 35, 51, 49, 62, 69, 91, 148]
+                )
+            ],
         ),
     ]
     answer = await generate_recommendations()
@@ -44,6 +50,6 @@ async def embed(request: Request) -> EmbedOutput:
         status=True,
         recap=recap_example,
         recommendations=answer.recommendations,
-        dashboards=dashboards_example,
+        chart=chart_example,
     )
     return result
