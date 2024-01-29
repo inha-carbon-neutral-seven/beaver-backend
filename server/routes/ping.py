@@ -9,5 +9,5 @@ ping_router = APIRouter()
 
 @ping_router.get("/ping")
 async def ping() -> Pong:
-    status = await check_server_status()
+    status = check_server_status()
     return Pong(status=status)

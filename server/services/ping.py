@@ -9,7 +9,7 @@ import os
 import requests
 
 
-async def check_server_status() -> bool:
+def check_server_status() -> bool:
     """
     모델 서버의 상태를 확인하는 함수
     """
@@ -18,7 +18,7 @@ async def check_server_status() -> bool:
     api_base = os.getenv("OPENAI_API_BASE")
     openai_api_key = os.getenv("OPENAI_API_KEY")
 
-    if api_base is None:
+    if not api_base:
         api_base = "https://api.openai.com/v1"
 
     headers = {

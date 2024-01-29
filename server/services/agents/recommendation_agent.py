@@ -1,38 +1,44 @@
-from langchain.prompts import PromptTemplate
-from langchain.chat_models.openai import ChatOpenAI
-from langchain.chains import LLMChain
+from operator import itemgetter
+import json
+from langchain_core.prompts import PromptTemplate
+from langchain_openai.chat_models import ChatOpenAI
+from langchain.callbacks.tracers import ConsoleCallbackHandler
+from ..output_parsers.output_parsers import RecapOutput, RecommendationOutput, recommendation_parser
 
-from ..output_parsers.output_parsers import RecommendationOutput, recommendation_parser
+
+RECOMMENDATION_TEMPLATE = """Given the recap of the data {racap}
+about a document from create THREE different specific questions that retailers might want to know about their data in Korean:
+\n{format_instructions}"""
 
 
-def lookup(description: str) -> RecommendationOutput:
+def lookup(recap_output: RecapOutput) -> RecommendationOutput:
     """
-    주어진 description을 기반으로 사용자가 물어볼 만한 적절한 질문을 생성하는 Agent
+    임베딩 정보를 기반으로 사용자가 물어볼 만한 적절한 질문을 생성하는 Agent
     """
-    llm = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo")
+    recap = json.dumps(recap_output.to_dict())
+    llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
 
-    recommendation_template = """
-    Given the description {description}
-    about a document from create THREE different specific questions that retailers might want to know about their data in Korean:
-    Strictly follow the question format with question marks.
-    \n{format_instructions}
-    """
-
-    # TODO: FewShotPromptTemplate 로 바꿀 것
-
-    recommendation_prompt_template = PromptTemplate(
-        input_variables=["description"],
-        template=recommendation_template,
+    rag_prompt = PromptTemplate(
+        input_variables=["racap"],
+        template=RECOMMENDATION_TEMPLATE,
         partial_variables={
             "format_instructions": recommendation_parser.get_format_instructions(),
         },
     )
 
-    chain = LLMChain(
-        llm=llm,
-        prompt=recommendation_prompt_template,
+    # LCEL 정의
+    rag_chain = (
+        {
+            "racap": itemgetter("racap"),
+        }
+        | rag_prompt
+        | llm
+        | recommendation_parser
     )
 
-    result = chain.run(description=description)
+    recommendation_output = rag_chain.invoke(
+        {"racap": recap},
+        config={"callbacks": [ConsoleCallbackHandler()]},
+    )
 
-    return recommendation_parser.parse(result)
+    return recommendation_output
