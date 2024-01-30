@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 class RecommendationOutput(BaseModel):
     recommendations: List[str] = Field(
-        description="Recommended questions for users to ask",
+        description="This is a list of questions that will best answer your questions.",
         min_items=3,
     )
 
