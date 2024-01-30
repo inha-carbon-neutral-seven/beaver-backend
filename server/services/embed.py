@@ -6,8 +6,7 @@ GET /embed
 import logging
 
 from pydantic import ValidationError
-from langchain_community.vectorstores.chroma import Chroma
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores.faiss import FAISS
 from langchain_openai.embeddings import OpenAIEmbeddings
 
 from .ping import check_server_status
@@ -101,7 +100,7 @@ def embed_document() -> bool:
 
     try:
         # 자른 문서를 임베딩하고 동시에 persist 합니다.
-        vectorstore = FAISS.from_documents(splitted_documents, OpenAIEmbeddings())
+        vectorstore = FAISS.from_documents(splitted_documents, embedding=OpenAIEmbeddings())
         vectorstore.save_local(vectorstore_path)
 
     except ValueError:
