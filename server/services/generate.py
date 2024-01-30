@@ -77,7 +77,7 @@ def generate_message_from_document(question_message: str) -> Answer:
         retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
         # llm 정의
-        llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.2)
+        llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
 
         # 템플릿 정의
         template = """You are an assistant for question-answering tasks.

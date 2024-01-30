@@ -5,7 +5,7 @@
 import os
 import logging
 
-from langchain_community.vectorstores.chroma import Chroma
+from langchain_community.vectorstores.faiss import FAISS
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -51,7 +51,7 @@ def get_table_path() -> str:
 
 def get_vectorstore_path() -> str:
     """
-    크로마 벡터스토어 경로를 가져옵니다.
+    벡터스토어 경로를 가져옵니다.
     """
     return _get_subdirectory_path("vectorstore")
 
@@ -160,17 +160,14 @@ def get_splitted_documents(chunk_size=1000, chunk_overlap=0):
     return splitted_documents
 
 
-def load_vectorstore() -> Chroma | None:
+def load_vectorstore():
     """
     임베딩 vectorstore를 가져와 인덱스를 호출합니다.
     """
     vectorstore_path = get_vectorstore_path()
 
     try:
-        vectorstore = Chroma(
-            persist_directory=vectorstore_path,
-            embedding_function=OpenAIEmbeddings(),
-        )
+        vectorstore = FAISS.load_local(vectorstore_path, OpenAIEmbeddings())
         return vectorstore
 
     except ValueError:  # 임베딩 파일이나 세션을 확인하지 못하는 경우
