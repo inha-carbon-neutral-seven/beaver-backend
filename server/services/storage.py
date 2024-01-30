@@ -6,7 +6,11 @@ import os
 import logging
 
 from langchain_community.vectorstores.chroma import Chroma
+from langchain_community.document_loaders import DirectoryLoader
 from langchain_openai import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from pandas import read_csv
+import pandas as pd
 
 from .session import get_user_id
 
@@ -97,23 +101,63 @@ def save_file(contents: bytes, filename: str, description: str) -> None:
         fp.write(contents)
 
 
-def load_df_path() -> str | None:
+def load_dataframe():
     """
-    path에 있는 첫 번째 테이블 파일 경로를 전달하는 함수, 테이블 파일이 없다면 None을 반환합니다.
+    테이블 파일을 불러와 dataframe으로 전달합니다. 파일이 없다면 None을 반환합니다.
     """
     table_path = get_table_path()
     files_in_path = os.listdir(table_path)
 
     # 지원하는 확장자를 가진 파일 찾기
-    table_file = next(
+    table_filename = next(
         (file for file in files_in_path if any(file.endswith(ext) for ext in TABLE_EXT)), None
     )
 
-    if not table_file:
+    if not table_filename:
         return None
 
-    file_path = os.path.join(table_path, table_file)
-    return file_path
+    # df 불러오기
+    try:
+        table_file = os.path.join(table_path, table_filename)
+        print(table_file)
+        df = read_csv(table_file)
+
+    except FileNotFoundError:
+        logging.warning("load_dataframe 함수를 호출했으나 데이터 프레임을 가져올 수 없음")
+        return None
+
+    # to_datetime 정적으로 formatting
+    date_words = ["date", "time", "날짜", "일자"]
+
+    for column in df.columns:
+        if any(word in column.lower() for word in date_words):
+            df[column] = pd.to_datetime(df[column], errors="ignore")
+
+    return df
+
+
+def get_splitted_documents(chunk_size=1000, chunk_overlap=0):
+    """
+    임베딩 또는 문서 요약에 사용하는 splitted documents를 가져옵니다.
+    """
+    document_path = get_document_path()
+    try:
+        # 디렉토리를 읽어옵니다. [Loader: UnstructuredFileLoader]
+        loader = DirectoryLoader(document_path, show_progress=True)
+        documents = loader.load()
+
+    except ValueError:
+        logging.warning("splitted documents 로딩 오류: 저장소를 읽을 수 없음")
+        return None
+
+    # 문서를 text_splitter로 자릅니다.
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        add_start_index=True,
+    )
+    splitted_documents = text_splitter.split_documents(documents)
+    return splitted_documents
 
 
 def load_vectorstore() -> Chroma | None:
