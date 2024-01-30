@@ -52,7 +52,7 @@ def run() -> EmbedOutput:
             if not charts:
                 charts = [
                     ChartOutput(
-                        type=ChartType.LINE,
+                        type=ChartType.BAR,
                         title="Product Trends by Month",
                         labels=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
                         series=[
