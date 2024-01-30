@@ -4,19 +4,8 @@ from pydantic import BaseModel, Field
 
 
 class ChartType(str, Enum):
-    LINE = "line"
-    AREA = "area"
     BAR = "bar"
-    COLUMN = "column"
-    BOXPLOT = "boxPlot"
-    RANGEBAR = "rangeBar"
-    RANGEAREA = "rangeArea"
-    HEATMAP = "heatmap"
-    TREEMAP = "treemap"
-    RADAR = "radar"
-    RADIALBAR = "radialbar"
     PIE = "pie"
-    DONUT = "donut"
 
 
 class Series(BaseModel):
@@ -36,7 +25,7 @@ class ChartOutput(BaseModel):
     type: ChartType = Field(
         description="""
         The type of data to be displayed on the dashboard. 
-        Choose from ChartType.LINE, ChartType.PIE, ChartType.BAR."""
+        a chart type between 'pie' and 'bar'"""
     )
 
     def to_dict(self):
