@@ -6,6 +6,7 @@ import os
 import logging
 
 from langchain_community.vectorstores.chroma import Chroma
+from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 
 from .session import get_user_id
@@ -123,10 +124,7 @@ def load_vectorstore() -> Chroma | None:
     vectorstore_path = get_vectorstore_path()
 
     try:
-        vectorstore = Chroma(
-            persist_directory=vectorstore_path,
-            embedding_function=OpenAIEmbeddings(),
-        )
+        vectorstore = FAISS.load_local(vectorstore_path, OpenAIEmbeddings())
         return vectorstore
 
     except ValueError:  # 임베딩 파일이나 세션을 확인하지 못하는 경우

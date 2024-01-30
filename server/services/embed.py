@@ -8,6 +8,7 @@ import logging
 from pydantic import ValidationError
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
+from langchain_community.vectorstores import FAISS
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -119,12 +120,8 @@ def embed_document() -> bool:
     splitted_documents = text_splitter.split_documents(documents)
     try:
         # 자른 문서를 persist 합니다.
-        vectorstore = Chroma.from_documents(
-            documents=splitted_documents,
-            persist_directory=vectorstore_path,
-            embedding=OpenAIEmbeddings(),
-        )
-        vectorstore.persist()
+        vectorstore = FAISS.from_documents(splitted_documents,OpenAIEmbeddings())
+        vectorstore.save_local(vectorstore_path)
 
     except ValueError:
         logging.warning("문서 임베딩 오류: 모델 서버에 연결할 수 없음")
