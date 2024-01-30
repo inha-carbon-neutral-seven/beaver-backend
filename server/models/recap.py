@@ -9,9 +9,7 @@ class RecapOutput(BaseModel):
     subtitle: str = Field(
         description="Additional information below the title, providing specifying subtopics."
     )
-    summary: str = Field(
-        description="A brief overview encapsulating the main content of the document."
-    )
+    summary: str = Field(description="final, consolidated summary of the main themes. ")
     keywords: List[str] = Field(
         description="List of frequently used important WORDs or terms in the document.",
     )

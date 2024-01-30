@@ -1,7 +1,6 @@
 from operator import itemgetter
 from langchain_core.prompts import PromptTemplate
 from langchain_openai.chat_models import ChatOpenAI
-from langchain.callbacks.tracers import ConsoleCallbackHandler
 from ..storage import load_vectorstore
 from ..output_parsers.output_parsers import RecapOutput, recap_parser
 
@@ -50,7 +49,6 @@ def lookup() -> RecapOutput:
 
     recap_output = rag_chain.invoke(
         {"question": question},
-        config={"callbacks": [ConsoleCallbackHandler()]},
     )
 
     return recap_output
