@@ -12,7 +12,7 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from .ping import check_server_status
-from .storage import get_document_path, get_chroma_path
+from .storage import get_document_path, get_vectorstore_path
 from .agents.recap_agent import lookup as recap_agent, RecapOutput
 from .agents.recommendation_agent import lookup as recommendation_agent
 from ..models.embed import EmbedOutput
@@ -52,7 +52,7 @@ def run() -> EmbedOutput:
             if not charts:
                 charts = [
                     ChartOutput(
-                        type=ChartType.LINE,
+                        type=ChartType.BAR,
                         title="Product Trends by Month",
                         labels=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
                         series=[
@@ -99,7 +99,7 @@ def embed_document() -> bool:
 
     # 문서 파일 임베딩
     document_path = get_document_path()
-    chroma_path = get_chroma_path()
+    vectorstore_path = get_vectorstore_path()
 
     try:
         # 디렉토리를 읽어옵니다. [Loader: UnstructuredFileLoader]
@@ -121,7 +121,7 @@ def embed_document() -> bool:
         # 자른 문서를 persist 합니다.
         vectorstore = Chroma.from_documents(
             documents=splitted_documents,
-            persist_directory=chroma_path,
+            persist_directory=vectorstore_path,
             embedding=OpenAIEmbeddings(),
         )
         vectorstore.persist()

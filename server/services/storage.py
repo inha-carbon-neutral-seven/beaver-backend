@@ -11,7 +11,7 @@ from langchain_openai import OpenAIEmbeddings
 from .session import get_user_id
 
 
-TABLE_EXT = [".csv", ".tsv", ".xlsx"]
+TABLE_EXT = [".csv"]
 
 
 def get_storage_path() -> str:
@@ -45,11 +45,11 @@ def get_table_path() -> str:
     return _get_subdirectory_path("table")
 
 
-def get_chroma_path() -> str:
+def get_vectorstore_path() -> str:
     """
     크로마 벡터스토어 경로를 가져옵니다.
     """
-    return _get_subdirectory_path("chroma")
+    return _get_subdirectory_path("vectorstore")
 
 
 def clear_storage() -> None:
@@ -58,7 +58,7 @@ def clear_storage() -> None:
     """
     storage_path = get_storage_path()
     document_path = get_document_path()
-    chroma_path = get_chroma_path()
+    vectorstore_path = get_vectorstore_path()
     table_path = get_table_path()
 
     # 기존 디렉토리 및 하위 내용 삭제
@@ -73,7 +73,7 @@ def clear_storage() -> None:
     #  디렉토리 재생성
     os.makedirs(storage_path)
     os.makedirs(document_path)
-    os.makedirs(chroma_path)
+    os.makedirs(vectorstore_path)
     os.makedirs(table_path)
 
 
@@ -118,12 +118,15 @@ def load_df_path() -> str | None:
 
 def load_vectorstore() -> Chroma | None:
     """
-    임베딩 벡터 데이터를 가져와 인덱스를 호출합니다.
+    임베딩 vectorstore를 가져와 인덱스를 호출합니다.
     """
-    chroma_path = get_chroma_path()
+    vectorstore_path = get_vectorstore_path()
 
     try:
-        vectorstore = Chroma(persist_directory=chroma_path, embedding_function=OpenAIEmbeddings())
+        vectorstore = Chroma(
+            persist_directory=vectorstore_path,
+            embedding_function=OpenAIEmbeddings(),
+        )
         return vectorstore
 
     except ValueError:  # 임베딩 파일이나 세션을 확인하지 못하는 경우

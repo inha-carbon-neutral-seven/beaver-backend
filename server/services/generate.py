@@ -38,19 +38,20 @@ def generate_message(question_message: str) -> Answer:
 def generate_message_from_table(question_message: str, df_path: str) -> Answer:
     df = pd.read_csv(df_path)
 
-    llm = ChatOpenAI(temperature=0.6, model="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
 
     agent = create_pandas_dataframe_agent(
         llm=llm,
         df=df,
         verbose=True,
         return_intermediate_steps=True,
+        max_iterations=8,
     )
 
     logging.info("pandas dataframe agent 호출")
 
     response = agent.invoke({"input": question_message})
-    print(f"{response=}")
+    # TODO: 가장 최근에 사용한 python input code를 클라이언트에게 전달할 것
 
     answer = Answer(
         type=AnswerType.TEXT,
@@ -96,7 +97,7 @@ def generate_message_from_document(question_message: str) -> Answer:
         custom_rag_prompt = PromptTemplate.from_template(template)
 
         def format_docs(docs):
-            # todo: top-k docs를 클라이언트에게 전달할 것
+            # TODO: top-k docs를 클라이언트에게 전달할 것
             return "\n\n".join(doc.page_content for doc in docs)
 
         # LCEL 정의
