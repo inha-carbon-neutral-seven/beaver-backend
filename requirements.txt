@@ -1,4 +1,5 @@
 fastapi[all]
+faiss-cpu
 uvicorn
 gunicorn
 requests
