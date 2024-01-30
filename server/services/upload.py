@@ -41,14 +41,16 @@ def save_table_documentation(table_name: str, df: DataFrame):
     datetime_ranges = get_datetime_ranges(df=df)
 
     documentation = f"""
+# '{table_name}' 테이블 데이터 분석
+
 ## 테이블 내용 요약
 - 이 테이블은 소매업자가 첨부한 데이터입니다. 
 - 테이블의 첫 5행 내용을 확인하여 문서의 흐름을 이해할 수 있습니다:
 {str(df.head())}
 
 
-## 테이블 내용 유형
-- 테이블 내용의 유형은 아래와 같습니다:
+## 테이블 열 유형 분석
+- 테이블에 서술된 열들의 유형은 아래와 같습니다:
 {str(df.dtypes)}
 
 
@@ -61,8 +63,8 @@ def save_table_documentation(table_name: str, df: DataFrame):
 
     for datetime_range in datetime_ranges:
         datetime_text = f"""
-## datetime format column "{datetime_range.column_name}" 추가 설명
-- {datetime_range.min} 부터 {datetime_range.max} 까지의 날짜 범위를 가집니다. 
+## datetime "{datetime_range.column_name}" 추가 설명
+- {datetime_range.column_name}은 {datetime_range.min} 부터 {datetime_range.max} 까지의 날짜 범위를 가집니다. 
 
 """
         documentation += datetime_text
