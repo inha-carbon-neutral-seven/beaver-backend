@@ -6,7 +6,7 @@ POST /generate
 import logging
 from operator import itemgetter
 
-import pandas as pd
+from pandas import DataFrame
 from langchain_openai.chat_models import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -14,7 +14,7 @@ from langchain_experimental.agents import create_pandas_dataframe_agent
 from openai import APIConnectionError
 
 from ..models.generate import Answer, AnswerType
-from .storage import load_vectorstore, load_df_path
+from .storage import load_vectorstore, load_dataframe
 
 
 def generate_message(question_message: str) -> Answer:
@@ -23,11 +23,10 @@ def generate_message(question_message: str) -> Answer:
     """
     logging.info("요청한 질문: %s", question_message)
 
-    answer = None
-    df_path = load_df_path()
+    df = load_dataframe()
 
-    if df_path:
-        answer = generate_message_from_table(question_message=question_message, df_path=df_path)
+    if isinstance(df, DataFrame):
+        answer = generate_message_from_table(question_message=question_message, df=df)
     else:
         answer = generate_message_from_document(question_message=question_message)
 
@@ -35,9 +34,7 @@ def generate_message(question_message: str) -> Answer:
     return answer
 
 
-def generate_message_from_table(question_message: str, df_path: str) -> Answer:
-    df = pd.read_csv(df_path)
-
+def generate_message_from_table(question_message: str, df: DataFrame) -> Answer:
     llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
 
     agent = create_pandas_dataframe_agent(

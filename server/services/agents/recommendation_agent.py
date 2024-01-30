@@ -2,7 +2,6 @@ from operator import itemgetter
 import json
 from langchain_core.prompts import PromptTemplate
 from langchain_openai.chat_models import ChatOpenAI
-from langchain.callbacks.tracers import ConsoleCallbackHandler
 from ..output_parsers.output_parsers import RecapOutput, RecommendationOutput, recommendation_parser
 
 
@@ -38,7 +37,6 @@ def lookup(recap_output: RecapOutput) -> RecommendationOutput:
 
     recommendation_output = rag_chain.invoke(
         {"racap": recap},
-        config={"callbacks": [ConsoleCallbackHandler()]},
     )
 
     return recommendation_output

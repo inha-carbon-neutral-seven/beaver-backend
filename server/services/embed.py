@@ -6,14 +6,12 @@ GET /embed
 import logging
 
 from pydantic import ValidationError
-from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_community.vectorstores import FAISS
 from langchain_openai.embeddings import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from .ping import check_server_status
-from .storage import get_document_path, get_vectorstore_path
+from .storage import get_vectorstore_path, get_splitted_documents
 from .agents.recap_agent import lookup as recap_agent, RecapOutput
 from .agents.recommendation_agent import lookup as recommendation_agent
 from ..models.embed import EmbedOutput
@@ -98,29 +96,12 @@ def embed_document() -> bool:
     저장소에 있는 파일을 모델 서버로 보내 임베딩 결과를 받아옵니다.
     """
 
-    # 문서 파일 임베딩
-    document_path = get_document_path()
     vectorstore_path = get_vectorstore_path()
+    splitted_documents = get_splitted_documents()
 
     try:
-        # 디렉토리를 읽어옵니다. [Loader: UnstructuredFileLoader]
-        loader = DirectoryLoader(document_path, show_progress=True)
-        documents = loader.load()
-
-    except ValueError:
-        logging.warning("문서 임베딩 오류: 저장소를 읽을 수 없음")
-        return False
-
-    # 문서를 text_splitter로 자릅니다.
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
-        add_start_index=True,
-    )
-    splitted_documents = text_splitter.split_documents(documents)
-    try:
-        # 자른 문서를 persist 합니다.
-        vectorstore = FAISS.from_documents(splitted_documents,OpenAIEmbeddings())
+        # 자른 문서를 임베딩하고 동시에 persist 합니다.
+        vectorstore = FAISS.from_documents(splitted_documents, OpenAIEmbeddings())
         vectorstore.save_local(vectorstore_path)
 
     except ValueError:
