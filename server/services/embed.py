@@ -8,13 +8,14 @@ import logging
 from pydantic import ValidationError
 from langchain_community.vectorstores.faiss import FAISS
 from langchain_openai.embeddings import OpenAIEmbeddings
+from langchain_core.exceptions import OutputParserException
 
 from .ping import check_server_status
 from .storage import get_vectorstore_path, get_splitted_documents
 from .agents.recap_agent import lookup as recap_agent, RecapOutput
 from .agents.recommendation_agent import lookup as recommendation_agent
+from .agents.chart_agent import lookup as chart_agent, ChartOutput
 from ..models.embed import EmbedOutput
-from ..models.chart import ChartType, Series, ChartOutput
 
 
 def run() -> EmbedOutput:
@@ -27,8 +28,8 @@ def run() -> EmbedOutput:
         return EmbedOutput(status=False)
 
     recap: RecapOutput = None
-    recommendations: list[str] = None
-    charts: ChartOutput = None
+    recommendations: list[str] = []
+    charts: list[ChartOutput] = []
 
     error_iter = 0
     max_error_iter = 5
@@ -48,25 +49,16 @@ def run() -> EmbedOutput:
 
             # list of chart를 생성합니다. (현재 example)
             if not charts:
-                charts = [
-                    ChartOutput(
-                        type=ChartType.BAR,
-                        title="Product Trends by Month",
-                        labels=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
-                        series=[
-                            Series(
-                                name="Product A",
-                                data=[10, 41, 35, 51, 49, 62, 69, 91, 148],
-                            )
-                        ],
-                    ),
-                ]
+                chart = chart_agent()
+                if isinstance(chart, ChartOutput):
+                    charts.append(chart)
+
                 logging.info("생성한 charts: %s, ...", charts)
 
             # 에러 없이 모두 성공했으므로 루프를 종료합니다.
             break
 
-        except ValidationError as err:
+        except (ValidationError, ValueError, OutputParserException) as err:
             error_iter += 1
             logging.warning("Pydantic ValidationError iteration. [%s]", error_iter)
 

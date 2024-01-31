@@ -64,7 +64,7 @@ def save_table_documentation(table_name: str, df: DataFrame):
     documentation += "- 데이터 분석할 때 참고할 수 있는 자료입니다.\n"
 
     for column in df.columns:
-        documentation += f"- df['{column}'].descibe()\n: "
+        documentation += f"- '{column}'에 대한 요약 통계\n: "
 
         description = df[column].describe()
         for key, value in description.items():

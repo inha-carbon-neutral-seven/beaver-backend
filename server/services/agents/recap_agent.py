@@ -1,10 +1,10 @@
+import logging
 from langchain_core.prompts import PromptTemplate
 from langchain_openai.chat_models import ChatOpenAI
 from langchain.chains.summarize import load_summarize_chain
 from ..storage import get_splitted_documents
 from ..output_parsers.output_parsers import RecapOutput, recap_parser
 
-# 프롬프트는 항상 다듬을 것
 MAP_PROMPT_TEMPLATE = """Write a concise summary of the following:
 
 {text}
@@ -24,11 +24,16 @@ CONCISE FORMATTED SUMMARY in Korean:"""
 
 def lookup() -> RecapOutput:
     """
-    요약 문서를 생성하는 Agent
+    첨부한 파일에 대한 Recap을 생성하는 Agent
+
+    @Execution Time
+    Document : High
+    Table    : Low
     """
+    logging.info("recap agent 실행 ...")
     llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
 
-    splitted_documents = get_splitted_documents(chunk_size=3000)
+    splitted_documents = get_splitted_documents(chunk_size=2000)
     format_instructions = recap_parser.get_format_instructions()
 
     # Initialize templates
