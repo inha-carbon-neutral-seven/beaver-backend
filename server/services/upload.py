@@ -2,9 +2,9 @@
 POST /upload 
 에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
 """
-from io import StringIO
 from pandas import DataFrame
 import numpy as np
+
 from pydantic import BaseModel
 
 from .storage import clear_storage, save_file, load_dataframe
@@ -37,37 +37,39 @@ def save_table_documentation(table_name: str, df: DataFrame):
     """
     테이블을 설명하는 documentation을 만들어 텍스트 문서로 저장합니다.
     """
-    df_info = get_df_info(df=df)
     datetime_ranges = get_datetime_ranges(df=df)
 
     documentation = f"""
 # '{table_name}' 테이블 데이터 분석
 
 ## 중요: 테이블 내용 요약
-- 이 테이블은 소매업자가 첨부한 데이터입니다. 
+- 이 테이블은 소매업자가 첨부한 데이터입니다.
+- {len(df)}개의 행과 {len(df.columns)}개의 열을 가지고 있습니다. 
 - 테이블의 첫 5행 내용을 확인하여 문서의 흐름을 이해할 수 있습니다:
 {df.head().to_string()}
 
 ## 중요: 테이블 열 유형 분석
 - 문서를 요약하거나 질문을 생성할 때 꼭 필요한 열 정보입니다. 
 - 테이블에 서술된 열들의 유형은 아래와 같습니다. 필요한 키워드를 파싱할 수 있습니다:
-{df_info}
+{df.dtypes.to_string()}
 
 """
-    # datetime 추가 서술
+    # datetime 열 추가 설명
     for datetime_range in datetime_ranges:
         documentation += f"## datetime '{datetime_range.column_name}' 추가 설명\n"
         documentation += f"- {datetime_range.min} 부터 {datetime_range.max} 까지의 날짜 범위를 가집니다.\n\n"
 
-    # df.descibe() 참고자료 제공
+    # df.descibe() 통계 제공
     documentation += "## 참고자료: 테이블 정수 자료 분석\n"
     documentation += "- 데이터 분석할 때 참고할 수 있는 자료입니다.\n"
 
     for column in df.columns:
+        if not df[column].dtype in [int, float]:
+            continue
+
         documentation += f"- '{column}'에 대한 요약 통계\n: "
 
-        description = df[column].describe()
-        for key, value in description.items():
+        for key, value in df[column].describe().items():
             documentation += f"{column}의 {key}: {value}, "
         documentation += "\n\n"
 
@@ -77,18 +79,14 @@ def save_table_documentation(table_name: str, df: DataFrame):
     save_file(contents=contents, filename="docs.txt", description=description)
 
 
-def get_df_info(df: DataFrame) -> str:
-    string_buffer = StringIO()
-    df.info(buf=string_buffer)
-    df_info = string_buffer.getvalue()
-    return df_info
-
-
-def get_datetime_ranges(df: DataFrame) -> list:
-    datetime_columns = df.select_dtypes(include=[np.datetime64])
+def get_datetime_ranges(df: DataFrame) -> list[DatetimeRange]:
+    """
+    datetime type의 열들의 min date와 max date를 제공합니다.
+    """
     datetime_ranges = []
+    datetime_columns = df.select_dtypes(include=[np.datetime64])
 
-    # datetime_columns의 각 column들의 최소 date, 최대 date를 date_bandwidthes에 저장
+    # datetime 열의 min, max date를 저장
     for column in datetime_columns.columns:
         datetime_range = DatetimeRange(
             column_name=column,
