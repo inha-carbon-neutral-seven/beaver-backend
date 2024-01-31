@@ -4,6 +4,7 @@ from langchain.chains.summarize import load_summarize_chain
 from ..storage import get_splitted_documents
 from ..output_parsers.output_parsers import RecapOutput, recap_parser
 
+# 프롬프트는 항상 다듬을 것
 MAP_PROMPT_TEMPLATE = """Write a concise summary of the following:
 
 {text}
@@ -25,7 +26,7 @@ def lookup() -> RecapOutput:
     """
     요약 문서를 생성하는 Agent
     """
-    llm = ChatOpenAI(temperature=0.2, model_name="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.4, model_name="gpt-3.5-turbo")
 
     splitted_documents = get_splitted_documents(chunk_size=3000)
     format_instructions = recap_parser.get_format_instructions()
@@ -52,7 +53,6 @@ def lookup() -> RecapOutput:
     )
 
     result = chain.invoke({"input_documents": splitted_documents})
-    print(f"{result=}")
 
     output_text = result["output_text"]
 

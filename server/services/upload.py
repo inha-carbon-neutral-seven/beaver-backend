@@ -43,31 +43,33 @@ def save_table_documentation(table_name: str, df: DataFrame):
     documentation = f"""
 # '{table_name}' 테이블 데이터 분석
 
-## 테이블 내용 요약
+## 중요: 테이블 내용 요약
 - 이 테이블은 소매업자가 첨부한 데이터입니다. 
 - 테이블의 첫 5행 내용을 확인하여 문서의 흐름을 이해할 수 있습니다:
-{str(df.head())}
+{df.head().to_string()}
 
-
-## 테이블 열 유형 분석
-- 테이블에 서술된 열들의 유형은 아래와 같습니다:
-{str(df.dtypes)}
-
-
-## 테이블 내용 정보
-- pd.DataFrame.info()의 결과입니다.
-- 아래를 살펴보며 필요한 키워드를 파싱할 수 있습니다:
+## 중요: 테이블 열 유형 분석
+- 문서를 요약하거나 질문을 생성할 때 꼭 필요한 열 정보입니다. 
+- 테이블에 서술된 열들의 유형은 아래와 같습니다. 필요한 키워드를 파싱할 수 있습니다:
 {df_info}
 
 """
-
+    # datetime 추가 서술
     for datetime_range in datetime_ranges:
-        datetime_text = f"""
-## datetime "{datetime_range.column_name}" 추가 설명
-- {datetime_range.column_name}은 {datetime_range.min} 부터 {datetime_range.max} 까지의 날짜 범위를 가집니다. 
+        documentation += f"## datetime '{datetime_range.column_name}' 추가 설명\n"
+        documentation += f"- {datetime_range.min} 부터 {datetime_range.max} 까지의 날짜 범위를 가집니다.\n\n"
 
-"""
-        documentation += datetime_text
+    # df.descibe() 참고자료 제공
+    documentation += "## 참고자료: 테이블 정수 자료 분석\n"
+    documentation += "- 데이터 분석할 때 참고할 수 있는 자료입니다.\n"
+
+    for column in df.columns:
+        documentation += f"- df['{column}'].descibe()\n: "
+
+        description = df[column].describe()
+        for key, value in description.items():
+            documentation += f"{column}의 {key}: {value}, "
+        documentation += "\n\n"
 
     # documentation 저장
     contents = documentation.encode(encoding="utf-8")
