@@ -9,6 +9,8 @@ embed_router = APIRouter()
 @embed_router.get("/embed")
 async def embed() -> EmbedOutput:
     """
+    [deprecated: POST /process 로 진행해주세요.]
+    
     인덱스를 모델 서버가 이해할 수 있는 형태로 임베딩합니다.
     """
 

@@ -16,7 +16,6 @@ RECOMMENDATION_TEMPLATE = """SYSTEM: 당신은 맥락에 맞는 유용한 질문
 {text}
 ```
 
-당신이 제공한 질문:
 {format_instructions}
 """
 

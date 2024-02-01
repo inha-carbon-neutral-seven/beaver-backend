@@ -9,6 +9,7 @@ from .routes.embed import embed_router
 from .routes.generate import generate_router
 from .routes.ping import ping_router
 from .routes.upload import upload_router
+from .routes.process import process_router
 from .services.session import set_user_id
 
 app = FastAPI()
@@ -27,6 +28,7 @@ app.include_router(ping_router)
 app.include_router(upload_router)
 app.include_router(embed_router)
 app.include_router(generate_router)
+app.include_router(process_router)
 
 
 @app.middleware("http")
