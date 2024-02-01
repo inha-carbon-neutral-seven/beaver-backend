@@ -4,7 +4,6 @@ GET /embed
 """
 
 import logging
-from typing import Any
 from pydantic import ValidationError
 from langchain_community.vectorstores.faiss import FAISS
 from langchain_openai.embeddings import OpenAIEmbeddings
@@ -40,15 +39,15 @@ def run(process_input: ProcessInput) -> ProcessOutput:
                 output = recap_agent()
                 save_recap(output)
 
-            elif process_type == ProcessType.RECOMMENDATION:
-                recap = load_recap()
-                recommendation_output = recommendation_agent(recap_output=recap)
-                output = recommendation_output.recommendations
-
             elif process_type == ProcessType.CHART:
                 chart_output = chart_agent()
                 if chart_output is not None:
                     output = [chart_output]
+
+            elif process_type == ProcessType.RECOMMENDATION:
+                recap = load_recap()
+                recommendation_output = recommendation_agent(recap_output=recap)
+                output = recommendation_output.recommendations
 
             else:
                 return ProcessOutput(status=False)
