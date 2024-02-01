@@ -19,6 +19,9 @@ from ..models.embed import EmbedOutput
 
 
 def run() -> EmbedOutput:
+    """
+    임베딩 관련 서비스를 실행합니다. 
+    """
     # 모델 서버가 불안정하면 임베딩을 진행하지 않습니다.
     if not check_server_status():
         return EmbedOutput(status=False)
@@ -85,6 +88,10 @@ def run() -> EmbedOutput:
 def embed_document() -> bool:
     """
     저장소에 있는 파일을 모델 서버로 보내 임베딩 결과를 받아옵니다.
+
+    @Execution Time
+    Document : High
+    Table    : Low
     """
 
     vectorstore_path = get_vectorstore_path()

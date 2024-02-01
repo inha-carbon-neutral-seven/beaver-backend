@@ -4,6 +4,7 @@
 
 import os
 import logging
+import json
 
 from langchain_community.vectorstores.faiss import FAISS
 from langchain_community.document_loaders import DirectoryLoader
@@ -13,7 +14,7 @@ from pandas import read_csv
 import pandas as pd
 
 from .session import get_user_id
-
+from ..models.recap import RecapOutput
 
 TABLE_EXT = [".csv"]
 
@@ -42,6 +43,13 @@ def get_document_path() -> str:
     return _get_subdirectory_path("document")
 
 
+def get_json_path() -> str:
+    """
+    벡터스토어 경로를 가져옵니다.
+    """
+    return _get_subdirectory_path("json")
+
+
 def get_table_path() -> str:
     """
     테이블 경로를 가져옵니다.
@@ -64,6 +72,7 @@ def clear_storage() -> None:
     document_path = get_document_path()
     vectorstore_path = get_vectorstore_path()
     table_path = get_table_path()
+    json_path = get_json_path()
 
     # 기존 디렉토리 및 하위 내용 삭제
     if os.path.exists(storage_path):
@@ -79,6 +88,7 @@ def clear_storage() -> None:
     os.makedirs(document_path)
     os.makedirs(vectorstore_path)
     os.makedirs(table_path)
+    os.makedirs(json_path)
 
 
 def save_file(contents: bytes, filename: str, description: str) -> None:
@@ -173,3 +183,33 @@ def load_vectorstore():
     except ValueError:  # 임베딩 파일이나 세션을 확인하지 못하는 경우
         logging.warning("vectorstore를 가져오지 못함")
         return None
+
+
+def save_recap(recap_output: RecapOutput) -> bool:
+    json_path = get_json_path()
+    recap_path = os.path.join(json_path, "recap.json")
+
+    try:
+        with open(recap_path, "w", encoding="utf-8") as f:
+            json.dump(recap_output.model_dump(), f, indent=4, ensure_ascii=False)
+        return True
+
+    except OSError as e:
+        print(f"Error saving recap: {e}")
+        return False
+
+
+def load_recap() -> RecapOutput:
+    json_path = get_json_path()
+    recap_path = os.path.join(json_path, "recap.json")
+
+    try:
+        with open(recap_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return RecapOutput(**data)
+
+    except OSError as e:
+        print(f"Error loading recap: {e}")
+        # Here you might want to handle the case where the file doesn't exist or loading fails.
+        # For now, returning an empty RecapOutput object.
+        return RecapOutput()
