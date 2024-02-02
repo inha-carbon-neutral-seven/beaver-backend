@@ -7,6 +7,8 @@ from ..storage import load_dataframe
 from ..output_parsers.output_parsers import ChartOutput, chart_parser
 
 CHART_SUFFIX = """
+"bar" type chart will represent data in rectangular bars, helpful for comparing quantities across categories.
+"pie" type chart will represent data in sectors of a circle, ideal for showing the proportion of parts against the whole.
 Your Final Answer should be in the format below in Korean:
 {format_instruction}
 
@@ -31,9 +33,9 @@ def lookup(question: str = None) -> ChartOutput | None:
         return None
 
     if question is None:
-        question = "csv 데이터를 대표하는 아주 간단한 차트를 생성해 줘. "
+        question = "csv 데이터를 대표하는 아주 간단한 pie 차트를 생성해 줘. "
 
-    llm = ChatOpenAI(temperature=0.4, model_name="gpt-4-1106-preview")
+    llm = ChatOpenAI(temperature=0.4, model_name="gpt-4-0125-preview")
 
     agent = create_pandas_dataframe_agent(
         llm=llm,

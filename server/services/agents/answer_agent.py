@@ -33,7 +33,7 @@ def lookup(question: str = None) -> ChartOutput | None:
     if question is None:
         question = "csv 데이터를 대표하는 아주 간단한 차트를 생성해 줘. "
 
-    llm = ChatOpenAI(temperature=0.4, model_name="gpt-4-1106-preview")
+    llm = ChatOpenAI(temperature=0.4, model_name="gpt-4-0125-preview")
 
     agent = create_pandas_dataframe_agent(
         llm=llm,

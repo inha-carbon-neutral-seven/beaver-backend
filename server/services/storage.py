@@ -129,7 +129,6 @@ def load_dataframe():
     # df 불러오기
     try:
         table_file = os.path.join(table_path, table_filename)
-        print(table_file)
         df = read_csv(table_file)
 
     except FileNotFoundError:
@@ -194,8 +193,8 @@ def save_recap(recap_output: RecapOutput) -> bool:
             json.dump(recap_output.model_dump(), f, indent=4, ensure_ascii=False)
         return True
 
-    except OSError as e:
-        print(f"Error saving recap: {e}")
+    except OSError:
+        logging.warning("recap save 오류: 파일스트림에 접근할 수 없음")
         return False
 
 
@@ -208,8 +207,6 @@ def load_recap() -> RecapOutput:
             data = json.load(f)
             return RecapOutput(**data)
 
-    except OSError as e:
-        print(f"Error loading recap: {e}")
-        # Here you might want to handle the case where the file doesn't exist or loading fails.
-        # For now, returning an empty RecapOutput object.
+    except OSError:
+        logging.warning("recap load 오류: 파일스트림에 접근할 수 없음")
         return RecapOutput()

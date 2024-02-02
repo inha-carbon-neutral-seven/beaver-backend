@@ -26,7 +26,7 @@ def run(process_input: ProcessInput) -> ProcessOutput:
 
     process_type = process_input.type
     error_iter = 0
-    max_error_iter = 2
+    max_error_iter = 1
     output = None
 
     while error_iter < max_error_iter:
