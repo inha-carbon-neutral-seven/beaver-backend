@@ -1,23 +1,28 @@
 import logging
-
 from langchain_openai.chat_models import ChatOpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
-
+from ...models.chart import ChartType, ChartOutput
+from ..output_parsers import chart_parser
 from ..storage import load_dataframe
-from ..output_parsers.output_parsers import ChartOutput, chart_parser
 
 CHART_SUFFIX = """
+The chart is based on the pre-prepared local pandas DataFrame 'df'. 
 "bar" type chart will represent data in rectangular bars, helpful for comparing quantities across categories.
 "pie" type chart will represent data in sectors of a circle, ideal for showing the proportion of parts against the whole.
+
+This is the result of `print(df.head())`:
+{df_head}
+
 Your Final Answer should be in the format below in Korean:
 {format_instruction}
 
 Begin!
 Question: {input}
-{agent_scratchpad}"""
+{}
+"""
 
 
-def lookup(question: str = None) -> ChartOutput | None:
+def lookup(question: str = None, chart_type: ChartType = None) -> ChartOutput | None:
     """
     데이터프레임을 기반으로 차트를 생성하는 Agent
 
@@ -33,16 +38,19 @@ def lookup(question: str = None) -> ChartOutput | None:
         return None
 
     if question is None:
-        question = "csv 데이터를 대표하는 아주 간단한 pie 차트를 생성해 줘. "
+        question = "csv 데이터를 대표하는 간단한 차트를 생성해 줘. "
 
-    llm = ChatOpenAI(temperature=0.4, model_name="gpt-4-0125-preview")
+    if chart_type is not None:
+        question += f"차트 타입은 {chart_type}로 해줘. "
+
+    llm = ChatOpenAI(temperature=0.7, model_name="gpt-4-0125-preview")
 
     agent = create_pandas_dataframe_agent(
         llm=llm,
         df=df,
         suffix=CHART_SUFFIX,
-        input_variables=["input", "agent_scratchpad", "format_instruction"],
-        include_df_in_prompt=None,
+        input_variables=["input", "df_head", "agent_scratchpad", "format_instruction"],
+        include_df_in_prompt=None,  # True, 라이브러리 상 세팅으로 None 설정
         verbose=True,
         max_iterations=8,
     )

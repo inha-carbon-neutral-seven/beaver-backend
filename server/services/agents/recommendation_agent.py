@@ -1,12 +1,10 @@
 import logging
-
 from langchain.chains import LLMChain
 from langchain_core.prompts import PromptTemplate
 from langchain_openai.chat_models import ChatOpenAI
-from ..output_parsers.output_parsers import RecapOutput, RecommendationOutput, recommendation_parser
+from ..output_parsers import RecapOutput, RecommendationOutput, recommendation_parser
 
 
-# 프롬프트는 항상 다듬을 것
 RECOMMENDATION_TEMPLATE = """SYSTEM: 당신은 맥락에 맞는 유용한 한국어 질문을 제공하는 AI 챗봇입니다.
 3 backticks로 제시된 맥락과 아주 관련이 높은, 서로 다른 3개의 질문을 생성해내는 것이 당신의 목표입니다. 
 소매업자 입장에서 궁금할 만한 내용을 질문으로 생성하세요. 대답은 반드시 물음표로 끝나는 존댓말 양식의 질문문 형식이여야 합니다.   

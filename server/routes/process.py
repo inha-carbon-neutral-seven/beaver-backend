@@ -22,5 +22,5 @@ async def process(process_input: ProcessInput) -> ProcessOutput:
     }
     ```
     """
-
-    return run(process_input=process_input)
+    process_type = process_input.type
+    return run(process_type=process_type)

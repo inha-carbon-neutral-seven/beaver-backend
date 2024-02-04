@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from enum import Enum
 from pydantic import BaseModel, Field
 
@@ -10,7 +10,7 @@ class ChartType(str, Enum):
 
 class Series(BaseModel):
     name: str
-    data: List[int]
+    data: List[Union[int, float]]
 
 
 class ChartOutput(BaseModel):

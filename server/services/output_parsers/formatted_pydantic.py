@@ -37,7 +37,7 @@ class FormattedPydanticOutputParser(PydanticOutputParser[T]):
         try:
             return super().parse(text)
 
-        except OutputParserException:
+        except (OutputParserException, ValueError):
             logging.warning("Incorrect JSON format detected at PydanticLLMOutputParser: %s", text)
             corrected_text = self._correct_json_format(text)
             return super().parse(corrected_text)
