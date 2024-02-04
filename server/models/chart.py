@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from enum import Enum
 from pydantic import BaseModel, Field
 
@@ -10,7 +10,7 @@ class ChartType(str, Enum):
 
 class Series(BaseModel):
     name: str
-    data: List[int]
+    data: List[Union[int, float]]
 
 
 class ChartOutput(BaseModel):
@@ -23,9 +23,11 @@ class ChartOutput(BaseModel):
     )
     title: str = Field(description="The title representing the visualization of the chart.")
     type: ChartType = Field(
-        description="""
-        The type of data to be displayed on the dashboard. 
-        a chart type between 'pie' and 'bar'"""
+        description="""The type of chart to be displayed on the dashboard.
+        It determines the overall layout and the way data is represented in the chart.
+        "bar" type will represent data in rectangular bars, helpful for comparing quantities across categories.
+        "pie" type will represent data in sectors of a circle, 
+        ideal for showing the proportion of parts against the whole."""
     )
 
     def to_dict(self):

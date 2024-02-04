@@ -1,10 +1,8 @@
 import logging
-
 from langchain_openai.chat_models import ChatOpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
-
 from ..storage import load_dataframe
-from ..output_parsers.output_parsers import ChartOutput, chart_parser
+from ..output_parsers import ChartOutput, chart_parser
 
 CHART_SUFFIX = """
 Your Final Answer should be in the format below in Korean:
@@ -33,7 +31,7 @@ def lookup(question: str = None) -> ChartOutput | None:
     if question is None:
         question = "csv 데이터를 대표하는 아주 간단한 차트를 생성해 줘. "
 
-    llm = ChatOpenAI(temperature=0.4, model_name="gpt-4-1106-preview")
+    llm = ChatOpenAI(temperature=0.4, model_name="gpt-4-0125-preview")
 
     agent = create_pandas_dataframe_agent(
         llm=llm,
