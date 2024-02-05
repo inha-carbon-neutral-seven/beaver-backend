@@ -18,7 +18,7 @@ Your Final Answer should be in the format below in Korean:
 
 Begin!
 Question: {input}
-{}
+{agent_scratchpad}
 """
 
 
