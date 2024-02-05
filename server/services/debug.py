@@ -1,6 +1,6 @@
 """
-GET /embed
-에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+debug 디버깅에 사용하는 비즈니스 로직을 담은 코드 페이지입니다. 
+/debug/{test_router} 양식을 가집니다. 
 """
 from asyncio import sleep
 
