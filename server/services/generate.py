@@ -25,10 +25,10 @@ def generate_message(message_input: str) -> Answer:
 
     df = load_dataframe()
 
-    if not df:
-        answer = generate_message_from_document(message_input=message_input)
-    else:
+    if isinstance(df, DataFrame):
         answer = generate_message_from_table(message_input=message_input, df=df)
+    else:
+        answer = generate_message_from_document(message_input=message_input)
 
     logging.info("생성한 응답: %s", answer.message)
     return answer
@@ -37,7 +37,7 @@ def generate_message(message_input: str) -> Answer:
 def generate_message_from_table(message_input: str, df: DataFrame) -> Answer:
     message = None
     sources = []
-    llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.7, model_name="gpt-4-0125-preview")
 
     agent = create_pandas_dataframe_agent(
         llm=llm,

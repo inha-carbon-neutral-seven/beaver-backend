@@ -16,9 +16,9 @@ class Question(BaseModel):
 
 class Answer(BaseModel):
     type: AnswerType = Field(description="생성한 답변의 형식을 정의합니다. ")
-    message: Optional[str] = Field(description="사용자의 질문에 대응하는 AI 챗봇의 답변 텍스트입니다. ")
-    chart: Optional[ChartOutput] = Field(description="AI 챗봇이 만든 차트 데이터입니다. ")
-    sources: List[str] = Field(description="답변에 사용한 근거를 제시합니다. ")
+    message: Optional[str] = Field(None, description="사용자의 질문에 대응하는 AI 챗봇의 답변 텍스트입니다. ")
+    chart: Optional[ChartOutput] = Field(None, description="AI 챗봇이 만든 차트 데이터입니다. ",)
+    sources: List[str] = Field([], description="답변에 사용한 근거를 제시합니다. ")
 
     def to_dict(self):
         return {
