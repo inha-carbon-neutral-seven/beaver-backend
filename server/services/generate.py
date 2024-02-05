@@ -17,24 +17,26 @@ from ..models.generate import Answer, AnswerType
 from .storage import load_vectorstore, load_dataframe
 
 
-def generate_message(question_message: str) -> Answer:
+def generate_message(message_input: str) -> Answer:
     """
     LLM에 질문을 전달해 답변을 생성합니다.
     """
-    logging.info("요청한 질문: %s", question_message)
+    logging.info("요청한 질문: %s", message_input)
 
     df = load_dataframe()
 
-    if isinstance(df, DataFrame):
-        answer = generate_message_from_table(question_message=question_message, df=df)
+    if not df:
+        answer = generate_message_from_document(message_input=message_input)
     else:
-        answer = generate_message_from_document(question_message=question_message)
+        answer = generate_message_from_table(message_input=message_input, df=df)
 
     logging.info("생성한 응답: %s", answer.message)
     return answer
 
 
-def generate_message_from_table(question_message: str, df: DataFrame) -> Answer:
+def generate_message_from_table(message_input: str, df: DataFrame) -> Answer:
+    message = None
+    sources = []
     llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
 
     agent = create_pandas_dataframe_agent(
@@ -47,21 +49,24 @@ def generate_message_from_table(question_message: str, df: DataFrame) -> Answer:
 
     logging.info("pandas dataframe agent 호출")
 
-    response = agent.invoke({"input": question_message})
+    response = agent.invoke({"input": message_input})
+    message = response["output"]
     # TODO: 가장 최근에 사용한 python input code를 클라이언트에게 전달할 것
 
     answer = Answer(
         type=AnswerType.TEXT,
-        message=response["output"],
+        message=message,
+        sources=sources,
     )
     return answer
 
 
-def generate_message_from_document(question_message: str) -> Answer:
+def generate_message_from_document(message_input: str) -> Answer:
     """
     문서로부터 답변을 생성합니다.
     """
     message = None
+    sources = []
 
     vectorstore = load_vectorstore()
     if not vectorstore:
@@ -69,6 +74,7 @@ def generate_message_from_document(question_message: str) -> Answer:
         return Answer(
             type=AnswerType.TEXT,
             message=message,
+            sources=sources,
         )
 
     try:
@@ -110,7 +116,7 @@ def generate_message_from_document(question_message: str) -> Answer:
         )
 
         # 답변 생성
-        message = rag_chain.invoke({"question": question_message, "language": "Korean"})
+        message = rag_chain.invoke({"question": message_input, "language": "Korean"})
         logging.info("Answer: message")
         logging.info("RAG finished")
 
@@ -122,4 +128,5 @@ def generate_message_from_document(question_message: str) -> Answer:
     return Answer(
         type=AnswerType.TEXT,
         message=message,
+        sources=sources,
     )
