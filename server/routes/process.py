@@ -29,9 +29,7 @@ async def process(process_input: ProcessInput) -> ProcessOutput:
 
 
 # DEBUG
-
-
-@process_router.post("/process_debug")
+@process_router.post("/debug/process")
 async def debug(process_input: ProcessInput) -> ProcessOutput:
     """
     [테스트] 업로드한 파일을 적절한 데이터 형태로 처리합니다.
