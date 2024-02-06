@@ -2,11 +2,14 @@ import logging
 from langchain_openai.chat_models import ChatOpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from ...models.chart import ChartType, ChartOutput
+from ..tools import MemoryPythonAstREPLTool
 from ..output_parsers import chart_parser
 from ..storage import load_dataframe
 
 CHART_SUFFIX = """
 The chart is based on the pre-prepared local pandas DataFrame 'df'. 
+The length of data to be handled should be between 3 and 20. Also, don't create too much output.
+Do not omit data by '...' in markdown format.
 "bar" type chart will represent data in rectangular bars, helpful for comparing quantities across categories.
 "pie" type chart will represent data in sectors of a circle, ideal for showing the proportion of parts against the whole.
 
@@ -29,6 +32,9 @@ def lookup(question: str = None, chart_type: ChartType = None) -> ChartOutput | 
     @Execution Time
     Document : Not Executed
     Table    : High
+
+    @Method used
+    ReAct, PythonREPL
     """
     logging.info("chart agent 실행...")
 
@@ -43,7 +49,10 @@ def lookup(question: str = None, chart_type: ChartType = None) -> ChartOutput | 
     if chart_type is not None:
         question += f"차트 타입은 {chart_type}로 해줘. "
 
-    llm = ChatOpenAI(temperature=0.7, model_name="gpt-4-0125-preview")
+    if 1 == 1:
+        llm = ChatOpenAI(temperature=0.7, model_name="gpt-4-0125-preview")
+    else:
+        llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo-0125")
 
     agent = create_pandas_dataframe_agent(
         llm=llm,
@@ -54,6 +63,10 @@ def lookup(question: str = None, chart_type: ChartType = None) -> ChartOutput | 
         verbose=True,
         max_iterations=8,
     )
+    memory_python_repl_tool = MemoryPythonAstREPLTool(locals={"df": df})
+    agent.handle_parsing_errors = True
+
+    agent.tools = [memory_python_repl_tool]
 
     result = agent.invoke(
         {"input": question, "format_instruction": chart_parser.get_format_instructions()}
@@ -62,5 +75,6 @@ def lookup(question: str = None, chart_type: ChartType = None) -> ChartOutput | 
     output = result["output"]
 
     chart_output = chart_parser.parse(output)
+    logging.info("history in chart :: %s", memory_python_repl_tool.history)
 
     return chart_output
