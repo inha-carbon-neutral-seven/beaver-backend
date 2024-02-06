@@ -157,7 +157,7 @@ def get_splitted_documents(chunk_size=1000, chunk_overlap=0):
 
     except ValueError:
         logging.warning("splitted documents 로딩 오류: 저장소를 읽을 수 없음")
-        return None
+        return []
 
     # 문서를 text_splitter로 자릅니다.
     text_splitter = RecursiveCharacterTextSplitter(

@@ -44,12 +44,12 @@ def run(process_type: ProcessType, max_retries: int = 2) -> ProcessOutput:
                 output = None
 
             elif process_type == ProcessType.RECAP:
-                output = recap_agent()
-                save_recap(output)
-
                 # 첨부한 파일 또는 문서를 임베딩합니다.
                 if not embed_document():
                     return ProcessOutput(status=False)
+
+                output = recap_agent()
+                save_recap(output)
 
             elif process_type == ProcessType.CHART:
                 output = []
