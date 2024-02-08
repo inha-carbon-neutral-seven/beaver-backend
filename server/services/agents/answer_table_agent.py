@@ -12,7 +12,7 @@ and do NOT use pyplot.
 This is the result of `print(df.head())`:
 {df_head}
 
-Your Final Answer should be in Korean:
+Your final answer should be one that contains your personal opinion and specific answers in Korean:
 
 Begin!
 Question: {input}
@@ -20,7 +20,7 @@ Question: {input}
 """
 
 
-def lookup(message_input: str, df: DataFrame) -> Answer:
+def lookup(df: DataFrame, message_input: str) -> Answer:
     """
     테이블로부터 답변을 생성합니다.
 

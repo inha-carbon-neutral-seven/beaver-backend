@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .recap import RecapOutput
 from .chart import ChartOutput
@@ -19,6 +19,6 @@ class ProcessInput(BaseModel):
 
 
 class ProcessOutput(BaseModel):
-    status: bool
-    type: Optional[ProcessType]
-    output: Optional[Union[RecapOutput, List[str], List[ChartOutput]]]
+    status: bool = Field(False)
+    type: Optional[ProcessType] = Field(None)
+    output: Optional[Union[RecapOutput, List[str], List[ChartOutput]]] = Field(None)

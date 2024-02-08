@@ -3,7 +3,7 @@ from langchain_openai.chat_models import ChatOpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from ...models.chart import ChartType, ChartOutput
 from ..tools import MemoryPythonAstREPLTool
-from ..output_parsers import chart_parser
+from ..output_parsers.output_parsers import chart_parser
 from ..storage import load_dataframe
 
 CHART_SUFFIX = """
