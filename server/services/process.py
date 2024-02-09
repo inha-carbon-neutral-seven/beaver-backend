@@ -6,16 +6,16 @@ POST /process
 import logging
 
 import faiss
-from pydantic import ValidationError
+from pydantic_core import ValidationError
 from langchain_core.exceptions import OutputParserException
 from llama_index import VectorStoreIndex, SimpleDirectoryReader, StorageContext
 from llama_index.vector_stores.faiss import FaissVectorStore
 
 from .ping import check_server_status
 from .storage import get_vectorstore_path, get_document_path
-from .agents.chart_agent import lookup as chart_agent
-from .agents.recap_agent import lookup as recap_agent
-from .agents.recommendation_agent import lookup as recommendation_agent
+from .chains.chart import generate_chart
+from .chains.recap import generate_recap
+from .chains.recommendation import generate_recommendation
 from ..models.process import ProcessType, ProcessOutput
 from ..models.chart import ChartType
 
@@ -45,18 +45,18 @@ def run(process_type: ProcessType, max_retries: int = 2) -> ProcessOutput:
                 if not _embed_document():
                     return ProcessOutput(status=False)
 
-                output = recap_agent()
+                output = generate_recap()
 
             elif process_type == ProcessType.CHART:
                 output = []
-                pie_chart_output = chart_agent(chart_type=ChartType.PIE)
+                pie_chart_output = generate_chart(chart_type=ChartType.PIE)
 
                 if pie_chart_output is not None:
                     output = [pie_chart_output]
 
             elif process_type == ProcessType.RECOMMENDATION:
                 output = []
-                recommendation_output = recommendation_agent()
+                recommendation_output = generate_recommendation()
 
                 if recommendation_output is None:
                     return ProcessOutput(status=False)
@@ -70,7 +70,7 @@ def run(process_type: ProcessType, max_retries: int = 2) -> ProcessOutput:
             # 에러 없이 성공했으므로 루프를 종료합니다.
             break
 
-        except RuntimeError as err:
+        except (OutputParserException, ValidationError, ValueError) as err:
             retries += 1
             logging.warning("OutputParserException iteration. [%s]", retries)
 

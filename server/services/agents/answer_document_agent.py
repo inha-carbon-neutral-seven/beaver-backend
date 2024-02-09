@@ -1,9 +1,9 @@
 import logging
-
 from openai import APIConnectionError
+
+from llama_index.chat_engine.types import ChatMode
 from llama_index import ServiceContext
 from llama_index.llms import OpenAI
-
 from ..storage import load_index
 from ...models.generate import AnswerType, Answer, IOMemory
 
@@ -13,7 +13,7 @@ def lookup(message_input: str) -> Answer:
     문서로부터 답변을 생성합니다.
 
     @Method used
-    RAG
+    RAG, ReAct
     """
 
     logging.info("document agent 호출")
@@ -23,16 +23,16 @@ def lookup(message_input: str) -> Answer:
 
     try:
         index = load_index()
-    except FileNotFoundError:  # 사용자로부터 임베딩 파일을 받지 못했을 때 예외를 표출함
+    except FileNotFoundError:  # 사용자로부터 임베딩 파일을 받지 한 경우
         message = "파일이 첨부되지 않았습니다."
         return Answer(type=AnswerType.TEXT, message=message)
 
     service_context = _load_service_context()
-    engine = index.as_query_engine(service_context=service_context)
+    engine = index.as_chat_engine(chat_mode=ChatMode.REACT, service_context=service_context)
 
     try:
         message_input = f"Answer politely in Korean. {message_input}"
-        res = engine.query(message_input)
+        res = engine.chat(message_input)
         message = res.response
 
     except APIConnectionError:
