@@ -15,11 +15,12 @@ REDUCE_PROMPT_TEMPLATE = """The following is set of summaries:
 
 {text}
 
-Take these and distill it into a final, consolidated summary of the main themes. 
+Take these and distill it into a final, very long, consolidated summary of the entire document. 
+The title must indicate that it is a summary of document.
 
 {format_instructions}
 
-consolidated FORMATTED SUMMARY in Korean:"""
+very long, consolidated FORMATTED SUMMARY in Korean:"""
 
 
 def lookup() -> RecapOutput:
@@ -29,11 +30,14 @@ def lookup() -> RecapOutput:
     @Execution Time
     Document : High
     Table    : Low
+
+    @Method used
+    map-reduce summarization
     """
     logging.info("recap agent 실행 ...")
-    llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo-0125")
 
-    splitted_documents = get_splitted_documents(chunk_size=3500)
+    splitted_documents = get_splitted_documents(chunk_size=2000)
     format_instructions = recap_parser.get_format_instructions()
 
     # Initialize templates

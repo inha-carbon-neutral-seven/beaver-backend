@@ -8,6 +8,7 @@ from .chart import ChartOutput
 
 
 class ProcessType(str, Enum):
+    EMBED = "embed"
     RECAP = "recap"
     RECOMMENDATION = "recommendation"
     CHART = "chart"

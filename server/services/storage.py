@@ -43,11 +43,11 @@ def get_document_path() -> str:
     return _get_subdirectory_path("document")
 
 
-def get_json_path() -> str:
+def get_recap_path() -> str:
     """
-    벡터스토어 경로를 가져옵니다.
+    요약 문서 경로를 가져옵니다.
     """
-    return _get_subdirectory_path("json")
+    return os.path.join(get_document_path(), "recap")
 
 
 def get_table_path() -> str:
@@ -72,7 +72,7 @@ def clear_storage() -> None:
     document_path = get_document_path()
     vectorstore_path = get_vectorstore_path()
     table_path = get_table_path()
-    json_path = get_json_path()
+    recap_path = get_recap_path()
 
     # 기존 디렉토리 및 하위 내용 삭제
     if os.path.exists(storage_path):
@@ -88,7 +88,7 @@ def clear_storage() -> None:
     os.makedirs(document_path)
     os.makedirs(vectorstore_path)
     os.makedirs(table_path)
-    os.makedirs(json_path)
+    os.makedirs(recap_path)
 
 
 def save_file(contents: bytes, filename: str, description: str) -> None:
@@ -157,7 +157,7 @@ def get_splitted_documents(chunk_size=1000, chunk_overlap=0):
 
     except ValueError:
         logging.warning("splitted documents 로딩 오류: 저장소를 읽을 수 없음")
-        return None
+        return []
 
     # 문서를 text_splitter로 자릅니다.
     text_splitter = RecursiveCharacterTextSplitter(
@@ -179,17 +179,17 @@ def load_vectorstore():
         vectorstore = FAISS.load_local(vectorstore_path, OpenAIEmbeddings())
         return vectorstore
 
-    except ValueError:  # 임베딩 파일이나 세션을 확인하지 못하는 경우
-        logging.warning("vectorstore를 가져오지 못함")
+    except (RuntimeError, ValueError) as e:  # 임베딩 파일이나 세션을 확인하지 못하는 경우
+        logging.warning("vectorstore를 가져오지 못함: %s", e)
         return None
 
 
 def save_recap(recap_output: RecapOutput) -> bool:
-    json_path = get_json_path()
-    recap_path = os.path.join(json_path, "recap.json")
+    recap_path = get_recap_path()
+    file_path = os.path.join(recap_path, f"{recap_output.title}.txt")
 
     try:
-        with open(recap_path, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(recap_output.model_dump(), f, indent=4, ensure_ascii=False)
         return True
 
@@ -199,11 +199,18 @@ def save_recap(recap_output: RecapOutput) -> bool:
 
 
 def load_recap() -> RecapOutput:
-    json_path = get_json_path()
-    recap_path = os.path.join(json_path, "recap.json")
+    recap_path = get_recap_path()
+    file_path = None
+    for file in os.listdir(recap_path):
+        if file.endswith(".txt"):
+            file_path = os.path.join(recap_path, file)
 
     try:
-        with open(recap_path, "r", encoding="utf-8") as f:
+        if file_path is None:
+            logging.warning("recap load 오류: recap 파일이 존재하지 않음")
+            return RecapOutput()
+
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             return RecapOutput(**data)
 

@@ -20,29 +20,30 @@ RECOMMENDATION_TEMPLATE = """SYSTEM: 당신은 맥락에 맞는 유용한 한국
 
 def lookup(recap_output: RecapOutput) -> RecommendationOutput:
     """
-    임베딩 정보를 기반으로 사용자가 물어볼 만한 적절한 질문을 생성하는 Agent
+    Recap 정보를 기반으로 사용자가 물어볼 만한 적절한 질문을 생성하는 Agent
 
     @Execution Time
     Document : Low
     Table    : Low
+
+    @Method used
+    None
     """
 
     logging.info("recommendation agent 실행 ...")
     recap = recap_output.to_dict()
 
-    llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.2, model_name="gpt-3.5-turbo-0125")
 
-    rag_prompt = PromptTemplate(
+    recommendation_prompt = PromptTemplate(
         input_variables=["text"],
         template=RECOMMENDATION_TEMPLATE,
-        partial_variables={
-            "format_instructions": recommendation_parser.get_format_instructions(),
-        },
+        partial_variables={"format_instructions": recommendation_parser.get_format_instructions()},
     )
 
     chain = LLMChain(
         llm=llm,
-        prompt=rag_prompt,
+        prompt=recommendation_prompt,
         verbose=True,
     )
 

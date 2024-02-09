@@ -1,5 +1,5 @@
 """
-GET /embed
+POST /process
 에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
 """
 
@@ -22,7 +22,7 @@ from ..models.process import ProcessType, ProcessOutput
 from ..models.chart import ChartType
 
 
-def run(process_type: ProcessType, max_retries: int = 1) -> ProcessOutput:
+def run(process_type: ProcessType, max_retries: int = 2) -> ProcessOutput:
     """
     임베딩 관련 서비스를 실행합니다.
     """
@@ -36,7 +36,14 @@ def run(process_type: ProcessType, max_retries: int = 1) -> ProcessOutput:
     retries = 0
     while retries < max_retries:
         try:
-            if process_type == ProcessType.RECAP:
+            if process_type == ProcessType.EMBED:
+                # 첨부한 파일 또는 문서를 임베딩합니다.
+                if not embed_document():
+                    return ProcessOutput(status=False)
+
+                output = None
+
+            elif process_type == ProcessType.RECAP:
                 # 첨부한 파일 또는 문서를 임베딩합니다.
                 if not embed_document():
                     return ProcessOutput(status=False)
@@ -93,7 +100,7 @@ def embed_document() -> bool:
         return True
 
     vectorstore_path = get_vectorstore_path()
-    splitted_documents = get_splitted_documents()
+    splitted_documents = get_splitted_documents(chunk_size=1000, chunk_overlap=200)
 
     try:
         # 자른 문서를 임베딩하고 동시에 persist 합니다.

@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes.embed import embed_router
 from .routes.generate import generate_router
 from .routes.ping import ping_router
 from .routes.upload import upload_router
@@ -26,7 +25,6 @@ app.add_middleware(
 
 app.include_router(ping_router)
 app.include_router(upload_router)
-app.include_router(embed_router)
 app.include_router(generate_router)
 app.include_router(process_router)
 
