@@ -4,8 +4,8 @@ from pydantic import BaseModel, Field
 
 class RecommendationOutput(BaseModel):
     recommendations: List[str] = Field(
-        description="물음표로 끝나며 한국어 존댓말 양식을 가지는 질문. 반드시 질문문 형식를 지켜야 합니다. ",
-        min_items=3,
+        description="""전체 맥락에서, 서로 다른 주제에 대해 물어보는 세 가지 질문 예시.
+한국어 존댓말과 함께, 물음표로 된 질문문 형식을 지켜야 합니다. 반드시 3개여야 합니다. """
     )
 
     def to_dict(self):

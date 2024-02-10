@@ -10,6 +10,7 @@ httpx
 pandas
 pytest
 tabulate
+llama_index
 langchain
 pypdf
 langchain-community 

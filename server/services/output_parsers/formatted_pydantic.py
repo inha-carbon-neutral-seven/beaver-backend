@@ -49,7 +49,7 @@ class FormattedPydanticOutputParser(PydanticOutputParser[T]):
         :param text: The input text to be corrected.
         :return: Corrected JSON-like text.
         """
-        llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo-0125")
+        llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0125")
 
         prompt = PromptTemplate(
             input_variables=["text"],

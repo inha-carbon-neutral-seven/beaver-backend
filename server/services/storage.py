@@ -4,17 +4,11 @@
 
 import os
 import logging
-import json
-
-from langchain_community.vectorstores.faiss import FAISS
-from langchain_community.document_loaders import DirectoryLoader
-from langchain_openai import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from pandas import read_csv
 import pandas as pd
-
+from llama_index import StorageContext, VectorStoreIndex, load_index_from_storage
+from llama_index.vector_stores.faiss import FaissVectorStore
 from .session import get_user_id
-from ..models.recap import RecapOutput
 
 TABLE_EXT = [".csv"]
 
@@ -43,13 +37,6 @@ def get_document_path() -> str:
     return _get_subdirectory_path("document")
 
 
-def get_recap_path() -> str:
-    """
-    요약 문서 경로를 가져옵니다.
-    """
-    return os.path.join(get_document_path(), "recap")
-
-
 def get_table_path() -> str:
     """
     테이블 경로를 가져옵니다.
@@ -72,7 +59,6 @@ def clear_storage() -> None:
     document_path = get_document_path()
     vectorstore_path = get_vectorstore_path()
     table_path = get_table_path()
-    recap_path = get_recap_path()
 
     # 기존 디렉토리 및 하위 내용 삭제
     if os.path.exists(storage_path):
@@ -88,7 +74,6 @@ def clear_storage() -> None:
     os.makedirs(document_path)
     os.makedirs(vectorstore_path)
     os.makedirs(table_path)
-    os.makedirs(recap_path)
 
 
 def save_file(contents: bytes, filename: str, description: str) -> None:
@@ -145,75 +130,24 @@ def load_dataframe():
     return df
 
 
-def get_splitted_documents(chunk_size=1000, chunk_overlap=0):
+def load_index() -> VectorStoreIndex | None:
     """
-    임베딩 또는 문서 요약에 사용하는 splitted documents를 가져옵니다.
-    """
-    document_path = get_document_path()
-    try:
-        # 디렉토리를 읽어옵니다. [Loader: UnstructuredFileLoader]
-        loader = DirectoryLoader(document_path, show_progress=True)
-        documents = loader.load()
-
-    except ValueError:
-        logging.warning("splitted documents 로딩 오류: 저장소를 읽을 수 없음")
-        return []
-
-    # 문서를 text_splitter로 자릅니다.
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-        add_start_index=True,
-    )
-    splitted_documents = text_splitter.split_documents(documents)
-    return splitted_documents
-
-
-def load_vectorstore():
-    """
-    임베딩 vectorstore를 가져와 인덱스를 호출합니다.
+    VectorStoreIndex 를 불러옵니다.
     """
     vectorstore_path = get_vectorstore_path()
 
+    # load index from disk
     try:
-        vectorstore = FAISS.load_local(vectorstore_path, OpenAIEmbeddings())
-        return vectorstore
+        vector_store = FaissVectorStore.from_persist_dir(vectorstore_path)
 
-    except (RuntimeError, ValueError) as e:  # 임베딩 파일이나 세션을 확인하지 못하는 경우
-        logging.warning("vectorstore를 가져오지 못함: %s", e)
+    except ValueError:
+        logging.warning("index 불러오기 오류: vectorstore 파일을 확인할 수 없음")
         return None
 
+    storage_context = StorageContext.from_defaults(
+        vector_store=vector_store,
+        persist_dir=vectorstore_path,
+    )
 
-def save_recap(recap_output: RecapOutput) -> bool:
-    recap_path = get_recap_path()
-    file_path = os.path.join(recap_path, f"{recap_output.title}.txt")
-
-    try:
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(recap_output.model_dump(), f, indent=4, ensure_ascii=False)
-        return True
-
-    except OSError:
-        logging.warning("recap save 오류: 파일스트림에 접근할 수 없음")
-        return False
-
-
-def load_recap() -> RecapOutput:
-    recap_path = get_recap_path()
-    file_path = None
-    for file in os.listdir(recap_path):
-        if file.endswith(".txt"):
-            file_path = os.path.join(recap_path, file)
-
-    try:
-        if file_path is None:
-            logging.warning("recap load 오류: recap 파일이 존재하지 않음")
-            return RecapOutput()
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return RecapOutput(**data)
-
-    except OSError:
-        logging.warning("recap load 오류: 파일스트림에 접근할 수 없음")
-        return RecapOutput()
+    index = load_index_from_storage(storage_context=storage_context)
+    return index
