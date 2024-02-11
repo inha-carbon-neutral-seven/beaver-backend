@@ -31,7 +31,9 @@ def lookup(message_input: str) -> Answer:
     engine = index.as_chat_engine(chat_mode=ChatMode.REACT, service_context=service_context)
 
     try:
-        message_input = f"Answer politely in Korean. {message_input}"
+        message_input = (
+            f"Thinking through several stages, answer politely in Korean. {message_input}"
+        )
         res = engine.chat(message_input)
         message = res.response
 

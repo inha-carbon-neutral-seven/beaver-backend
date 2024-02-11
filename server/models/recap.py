@@ -3,6 +3,10 @@ from pydantic import BaseModel, Field
 
 
 class RecapOutput(BaseModel):
+    """
+    Data model for a recap.
+    """
+
     title: str = Field(description="제목, 문서의 주요 주제를 간결하게 한 줄로 요약합니다.")
     subtitle: str = Field(description="하위 제목, 하위 주제를 지정하며 추가 정보를 제공합니다.")
     summary: str = Field(
