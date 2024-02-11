@@ -1,3 +1,4 @@
+docx2txt
 fastapi[all]
 faiss-cpu
 uvicorn
