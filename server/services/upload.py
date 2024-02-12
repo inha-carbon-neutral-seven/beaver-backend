@@ -1,13 +1,14 @@
 """
-POST /upload 
-에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+POST /upload
+에 사용되는 비즈니스 로직을 담은 코드 페이지입니다.
 """
-from pandas import DataFrame
+
 import numpy as np
 
+from pandas import DataFrame
 from pydantic import BaseModel
 
-from .storage import clear_storage, save_file, load_dataframe
+from .storage import clear_storage, load_dataframe, save_file
 
 
 class DatetimeRange(BaseModel):
@@ -44,12 +45,12 @@ def save_table_documentation(table_name: str, df: DataFrame):
 
 ## 중요: 테이블 내용 요약
 - 이 테이블은 소매업자가 첨부한 데이터입니다.
-- {len(df)}개의 행과 {len(df.columns)}개의 열을 가지고 있습니다. 
+- {len(df)}개의 행과 {len(df.columns)}개의 열을 가지고 있습니다.
 - 테이블의 첫 5행 내용을 확인하여 문서의 흐름을 이해할 수 있습니다:
 {df.head().to_string()}
 
 ## 중요: 테이블 열 유형 분석
-- 문서를 요약하거나 질문을 생성할 때 꼭 필요한 열 정보입니다. 
+- 문서를 요약하거나 질문을 생성할 때 꼭 필요한 열 정보입니다.
 - 테이블에 서술된 열들의 유형은 아래와 같습니다. 필요한 키워드를 파싱할 수 있습니다:
 {df.dtypes.to_string()}
 

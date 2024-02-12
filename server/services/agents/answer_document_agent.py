@@ -1,11 +1,12 @@
 import logging
+
+from llama_index import ServiceContext
+from llama_index.chat_engine.types import ChatMode
+from llama_index.llms import OpenAI
 from openai import APIConnectionError
 
-from llama_index.chat_engine.types import ChatMode
-from llama_index import ServiceContext
-from llama_index.llms import OpenAI
+from ...models.generate import Answer, AnswerType, IOMemory
 from ..storage import load_index
-from ...models.generate import AnswerType, Answer, IOMemory
 
 
 def lookup(message_input: str) -> Answer:
@@ -23,6 +24,9 @@ def lookup(message_input: str) -> Answer:
 
     try:
         index = load_index()
+        if index is None:
+            raise FileNotFoundError
+
     except FileNotFoundError:  # 사용자로부터 임베딩 파일을 받지 한 경우
         message = "파일이 첨부되지 않았습니다."
         return Answer(type=AnswerType.TEXT, message=message)
@@ -56,7 +60,6 @@ def lookup(message_input: str) -> Answer:
 
 
 def _load_service_context():
-
     llm = OpenAI(model="gpt-3.5-turbo-0125")
     service_context = ServiceContext.from_defaults(llm=llm)
     return service_context

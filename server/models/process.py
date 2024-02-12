@@ -1,10 +1,10 @@
+from enum import Enum
 from typing import List, Optional, Union
 
-from enum import Enum
 from pydantic import BaseModel, Field
 
-from .recap import RecapOutput
 from .chart import ChartOutput
+from .recap import RecapOutput
 
 
 class ProcessType(str, Enum):
@@ -21,4 +21,4 @@ class ProcessInput(BaseModel):
 class ProcessOutput(BaseModel):
     status: bool = Field(False)
     type: Optional[ProcessType] = Field(None)
-    output: Optional[Union[RecapOutput, List[str], List[ChartOutput]]] = Field(None)
+    output: Union[RecapOutput, List[str], List[ChartOutput], None] = Field(None)

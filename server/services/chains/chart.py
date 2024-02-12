@@ -1,16 +1,20 @@
 import logging
-from langchain_openai.chat_models import ChatOpenAI
-from langchain_experimental.agents import create_pandas_dataframe_agent
 
-from server.models.chart import ChartType, ChartOutput
-from server.services.tools import MemoryPythonAstREPLTool
+from typing import Optional
+
+from langchain_experimental.agents import create_pandas_dataframe_agent
+from langchain_openai.chat_models import ChatOpenAI
+
+from server.models.chart import ChartOutput, ChartType
 from server.services.output_parsers.output_parsers import chart_parser
 from server.services.storage import load_dataframe
+from server.services.tools import MemoryPythonAstREPLTool
+
 
 CHART_SUFFIX = """
-The chart is based on the pre-prepared local pandas DataFrame 'df'. 
-The length of data to be handled should be between 3 and 20. 
-Do not omit data by '...' in markdown format. Do not 'plot' anything. 
+The chart is based on the pre-prepared local pandas DataFrame 'df'.
+The length of data to be handled should be between 3 and 20.
+Do not omit data by '...' in markdown format. Do not 'plot' anything.
 
 This is the result of `print(df.head())`:
 {df_head}
@@ -24,7 +28,9 @@ Question: {input}
 """
 
 
-def generate_chart(question: str = None, chart_type: ChartType = None) -> ChartOutput | None:
+def generate_chart(
+    question: Optional[str] = None, chart_type: Optional[ChartType] = None
+) -> ChartOutput | None:
     """
     데이터프레임을 기반으로 차트를 생성하는 Chain
 
