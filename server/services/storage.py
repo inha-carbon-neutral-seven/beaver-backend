@@ -114,10 +114,22 @@ def load_dataframe():
     # df 불러오기
     try:
         table_file = os.path.join(table_path, table_filename)
-        df = read_csv(table_file)
+
+        # 지원되는 인코딩 찾기
+        encodings = ["utf-8", "euc-kr"]
+        for encoding in encodings:
+            try:
+                df = pd.read_csv(table_file, encoding=encoding)
+                break
+
+            except UnicodeDecodeError:
+                continue
+
+        else:
+            raise FileNotFoundError
 
     except FileNotFoundError:
-        logging.warning("load_dataframe 함수를 호출했으나 데이터 프레임을 가져올 수 없음")
+        logging.warning("데이터 프레임을 가져올 수 없음")
         return None
 
     # to_datetime 정적으로 formatting
