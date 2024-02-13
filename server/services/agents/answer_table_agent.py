@@ -7,7 +7,7 @@ from langchain_openai.chat_models import ChatOpenAI
 from pandas import DataFrame
 
 from ...models.generate import Answer, AnswerType
-from ..tools import MemoryPythonAstREPLTool
+from ..tools.tools import MemoryPythonAstREPLTool
 
 
 TABLE_SUFFIX = """

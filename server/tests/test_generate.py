@@ -6,6 +6,7 @@ from ..main import app
 from ..models.generate import Answer, AnswerType
 from ..models.process import ProcessInput, ProcessType
 from ..services import storage as storage_services
+from .test_upload import test_upload_document, test_upload_table
 
 
 @pytest.fixture(autouse=True)
@@ -59,16 +60,10 @@ with TestClient(app) as client:
     # logics ###
 
     def _upload_sample(file_type: str = "document"):
-        document_file_path = "./server/tests/static/sample_document.txt"
-        table_file_path = "./server/tests/static/sample_table.csv"
-
         if file_type == "document":
-            file_path = document_file_path
+            test_upload_document()
         else:
-            file_path = table_file_path
-
-        with open(file_path, "rb") as f:
-            client.post("/upload", data={"description": "Test"}, files={"file": f})
+            test_upload_table()
 
     def _embed():
         process_input = ProcessInput(type=ProcessType.EMBED)

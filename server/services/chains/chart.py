@@ -8,7 +8,7 @@ from langchain_openai.chat_models import ChatOpenAI
 from server.models.chart import ChartOutput, ChartType
 from server.services.output_parsers.output_parsers import chart_parser
 from server.services.storage import load_dataframe
-from server.services.tools import MemoryPythonAstREPLTool
+from server.services.tools.tools import MemoryPythonAstREPLTool
 
 
 CHART_SUFFIX = """
