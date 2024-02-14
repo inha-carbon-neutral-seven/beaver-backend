@@ -51,6 +51,7 @@ def lookup(message_input: str) -> Answer:
         node = source_node.node
         text = node.text
         sources.append(IOMemory(output=text))
+    sources = [sources[0]]
 
     return Answer(
         type=AnswerType.TEXT,
