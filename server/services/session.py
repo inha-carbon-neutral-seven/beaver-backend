@@ -1,5 +1,5 @@
 """
-세션 설정에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+세션 설정에 사용되는 비즈니스 로직을 담은 코드 페이지입니다.
 """
 
 from fastapi import Request
@@ -12,7 +12,11 @@ def get_user_id() -> int:
     """
     get user_id
     """
-    return user_map["user_id"]
+    try:
+        return user_map["user_id"]
+
+    except KeyError:
+        return 999
 
 
 def set_user_id(request: Request):

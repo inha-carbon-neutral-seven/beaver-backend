@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-from ..services.process import run
-from ..services.debug import run_process as process_debug
-
 from ..models.process import ProcessInput, ProcessOutput
+from ..services.debug import run_process as process_debug
+from ..services.process import run
+
 
 process_router = APIRouter()
 
