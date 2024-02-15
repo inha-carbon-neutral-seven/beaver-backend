@@ -1,5 +1,6 @@
-from typing import List, Union
 from enum import Enum
+from typing import List, Union
+
 from pydantic import BaseModel, Field
 
 
@@ -25,8 +26,9 @@ class ChartOutput(BaseModel):
     type: ChartType = Field(
         description="""The type of chart to be displayed on the dashboard.
         It determines the overall layout and the way data is represented in the chart.
-        "bar" type will represent data in rectangular bars, helpful for comparing quantities across categories.
-        "pie" type will represent data in sectors of a circle, 
+        "bar" type will represent data in rectangular bars,
+        helpful for comparing quantities across categories.
+        "pie" type will represent data in sectors of a circle,
         ideal for showing the proportion of parts against the whole."""
     )
 

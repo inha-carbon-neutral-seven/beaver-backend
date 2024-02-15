@@ -7,9 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routes.generate import generate_router
 from .routes.ping import ping_router
-from .routes.upload import upload_router
 from .routes.process import process_router
+from .routes.upload import upload_router
 from .services.session import set_user_id
+
 
 app = FastAPI()
 

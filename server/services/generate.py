@@ -1,13 +1,14 @@
 """
-POST /generate 
-에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+POST /generate
+에 사용되는 비즈니스 로직을 담은 코드 페이지입니다.
 """
 
 import logging
+
 from ..models.generate import Answer
-from .storage import load_dataframe
-from .agents.answer_table_agent import lookup as answer_table_agent
 from .agents.answer_document_agent import lookup as answer_document_agent
+from .agents.answer_table_agent import lookup as answer_table_agent
+from .storage import load_dataframe
 
 
 def generate_message(message_input: str) -> Answer:

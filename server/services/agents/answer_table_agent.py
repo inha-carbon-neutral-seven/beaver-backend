@@ -1,10 +1,14 @@
 import logging
-from pandas import DataFrame
+
 import pandas as pd
-from langchain_openai.chat_models import ChatOpenAI
+
 from langchain_experimental.agents import create_pandas_dataframe_agent
-from ...models.generate import Answer, AnswerType
-from ..tools import MemoryPythonAstREPLTool
+from langchain_openai.chat_models import ChatOpenAI
+from pandas import DataFrame
+
+from ...models.generate import Answer, AnswerType, IOMemory
+from ..tools.tools import MemoryPythonAstREPLTool
+
 
 TABLE_SUFFIX = """
 Your Answer is based on the pre-prepared local pandas DataFrame 'df'.
@@ -56,7 +60,16 @@ def lookup(df: DataFrame, message_input: str) -> Answer:
 
     message = result["output"]
 
-    sources = memory_python_repl_tool.history
+    memories = memory_python_repl_tool.history
+
+    if len(memories) > 0:
+        source = memories[-1]
+        if source.input is not None:
+            source.input = source.input.replace("; ", "\n")
+        sources.append(source)
+
+    else:
+        sources.append(IOMemory())
 
     answer = Answer(
         type=AnswerType.TEXT,

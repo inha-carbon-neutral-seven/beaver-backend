@@ -1,9 +1,11 @@
 import logging
+
 from llama_index import ServiceContext, SimpleDirectoryReader
 from llama_index.llms import OpenAI
 from llama_index.response_synthesizers import TreeSummarize
-from server.services.storage import get_document_path
+
 from server.models.recommendation import RecommendationOutput
+from server.services.storage import get_document_path
 
 
 def generate_recommendation() -> RecommendationOutput | None:
@@ -20,8 +22,13 @@ def generate_recommendation() -> RecommendationOutput | None:
 
     logging.info("recommendation chain 실행 ...")
 
-    document_path = get_document_path()
-    documents = SimpleDirectoryReader(document_path).load_data()
+    try:
+        document_path = get_document_path()
+        documents = SimpleDirectoryReader(document_path).load_data()
+
+    except ValueError as e:
+        logging.warning("파일이 첨부되지 않음: %s", e)
+        return None
 
     document_text = documents[0].text
 
@@ -43,7 +50,6 @@ Create three questions in Korean that can be asked after looking at the content.
 
 
 def _load_service_context():
-
     llm = OpenAI(model="gpt-3.5-turbo-0125")
     service_context = ServiceContext.from_defaults(llm=llm)
     return service_context

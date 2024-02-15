@@ -1,14 +1,18 @@
 """
-저장 공간 관리에 사용되는 비즈니스 로직을 담은 코드 페이지입니다. 
+저장 공간 관리에 사용되는 비즈니스 로직을 담은 코드 페이지입니다.
 """
 
-import os
 import logging
-from pandas import read_csv
+import os
+
 import pandas as pd
+
 from llama_index import StorageContext, VectorStoreIndex, load_index_from_storage
 from llama_index.vector_stores.faiss import FaissVectorStore
+from pandas import read_csv
+
 from .session import get_user_id
+
 
 TABLE_EXT = [".csv"]
 
@@ -101,7 +105,12 @@ def load_dataframe():
     테이블 파일을 불러와 dataframe으로 전달합니다. 파일이 없다면 None을 반환합니다.
     """
     table_path = get_table_path()
-    files_in_path = os.listdir(table_path)
+    try:
+        files_in_path = os.listdir(table_path)
+
+    except FileNotFoundError:
+        logging.warning("데이터 프레임을 가져올 수 없음")
+        return None
 
     # 지원하는 확장자를 가진 파일 찾기
     table_filename = next(
@@ -119,7 +128,7 @@ def load_dataframe():
         encodings = ["utf-8", "euc-kr"]
         for encoding in encodings:
             try:
-                df = pd.read_csv(table_file, encoding=encoding)
+                df = read_csv(table_file, encoding=encoding)
                 break
 
             except UnicodeDecodeError:
