@@ -19,3 +19,5 @@ langchain-community==0.0.17
 langchain-core==0.1.18
 langchainhub==0.1.14
 langchain-openai==0.0.6
+konlpy==0.6.0
+spacy==3.7.2

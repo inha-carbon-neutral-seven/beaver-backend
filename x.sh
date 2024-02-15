@@ -1,0 +1,14 @@
+git branch -D basic-function
+git branch -D  ci/pre-commit
+ git branch -D feat/agent
+git branch -D  feat/chart
+git branch -D  feat/logging
+git branch -D  feat/session
+git branch -D feat/table-data
+git branch -D  refactor/agent
+ git branch -D refactor/chroma2faiss
+ git branch -D refactor/exception
+ git branch -D refactor/langchain
+git branch -D  refactor/llamaindex
+git branch -D  refactor/temp-query-model
+git branch -D  refactor/version-upgrade

@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from ..main import app
 from ..models.generate import Answer, AnswerType
 from ..models.process import ProcessInput, ProcessType
+from ..services import generate as generate_services
 from ..services import storage as storage_services
 from .test_upload import test_upload_document, test_upload_table
 
@@ -56,6 +57,13 @@ with TestClient(app) as client:
 
         assert answer.type == AnswerType.TEXT
         assert answer.chart is None
+
+    def test_classify_chart_question():
+        questions = {"차트를 생성해줘": True, "데이터를 시각화해줘": True, "안녕하세요": False}
+
+        for key, value in questions.items():
+            answer_type = generate_services.is_chart_request(key)
+            assert answer_type is value
 
     # logics ###
 

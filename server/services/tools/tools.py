@@ -18,6 +18,22 @@ class MemoryPythonAstREPLTool(PythonAstREPLTool):
 
     history: list[IOMemory] = []
 
+    def parse_last_history(self) -> list[IOMemory]:
+        memories = self.history
+
+        sources = []
+
+        if len(memories) > 0:
+            source = memories[-1]
+            if source.input is not None:
+                source.input = source.input.replace("; ", "\n")
+            sources.append(source)
+
+        else:
+            sources.append(IOMemory())
+
+        return sources
+
     def _run(
         self,
         query: str,
