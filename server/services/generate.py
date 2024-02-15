@@ -43,7 +43,7 @@ def generate_message(message_input: str) -> Answer:
 
 def filter_visualization_request(message_input: str) -> bool:
     """
-    시각화 생성을 요청하는 문장인지 표제어 추출(Lemmaization)을 통해 알아냅니다.
+    시각화를 요청하는 문장인지 표제어 추출(Lemmaization)을 통해 알아냅니다.
     """
 
     okt = Okt()

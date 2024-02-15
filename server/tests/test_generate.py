@@ -62,7 +62,7 @@ with TestClient(app) as client:
         questions = {"차트를 생성해줘": True, "데이터를 시각화해줘": True, "안녕하세요": False}
 
         for key, value in questions.items():
-            answer_type = generate_services.is_chart_request(key)
+            answer_type = generate_services.filter_visualization_request(key)
             assert answer_type is value
 
     # logics ###
