@@ -25,9 +25,9 @@ def generate_message(message_input: str) -> Answer:
         answer = answer_document_agent(message_input)
 
     else:
-        is_visualization_result = filter_visualization_request(message_input)
+        is_visualization_request = filter_visualization_request(message_input)
 
-        if is_visualization_result:
+        if is_visualization_request:
             answer_type = AnswerType.CHART
             logging.info("질문에서 시각화 요청 감지")
 
