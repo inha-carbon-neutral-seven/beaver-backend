@@ -49,8 +49,8 @@ def filter_visualization_request(message_input: str) -> bool:
     okt = Okt()
     morph_result = okt.pos(message_input, norm=True, stem=True)
 
-    nouns = ["분석", "시각", "차트", "시각화", "통계", "동향", "변화", "요약", "인사이트"]
-    verbs = ["보다", "그리다", "생성하다", "보여주다"]
+    nouns = ["분석", "시각", "차트", "시각화", "통계", "동향", "변화", "요약", "생성", "인사이트"]
+    verbs = ["보다", "그리다", "생성하다", "보여주다", "만들다"]
 
     word_dict = {}
     for noun in nouns:
