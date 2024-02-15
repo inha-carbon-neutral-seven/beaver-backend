@@ -43,14 +43,19 @@ def generate_message(message_input: str) -> Answer:
 
 def filter_visualization_request(message_input: str) -> bool:
     """
-    시각화 생성을 요청하는 문장인지 표제어 추출(Lemmaization)을 통해 알아냅니다.
+    시각화를 요청하는 문장인지 표제어 추출(Lemmaization)을 통해 알아냅니다.
     """
 
     okt = Okt()
-    morph_result = okt.pos(message_input, norm=True, stem=True)
+    try:
+        morph_result = okt.pos(message_input, norm=True, stem=True)
 
-    nouns = ["분석", "시각", "차트", "시각화", "통계", "동향", "변화", "요약", "인사이트"]
-    verbs = ["보다", "그리다", "생성하다", "보여주다"]
+    except ValueError:
+        logging.warning("%s: 형태소로 나누는 데에 실패함")
+        return False
+
+    nouns = ["분석", "시각", "차트", "시각화", "통계", "동향", "변화", "요약", "생성", "인사이트"]
+    verbs = ["보다", "그리다", "생성하다", "보여주다", "만들다"]
 
     word_dict = {}
     for noun in nouns:
