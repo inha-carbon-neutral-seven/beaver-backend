@@ -15,6 +15,7 @@ class Series(BaseModel):
 
 
 class ChartOutput(BaseModel):
+    title: str = Field(description="차트의 특성을 잘 표현하는 제목입니다. 한국어여야 합니다.")
     series: List[Series] = Field(
         description="""List of series points for the chart,
         each containing a name, type, and data points."""
@@ -22,7 +23,6 @@ class ChartOutput(BaseModel):
     labels: List[str] = Field(
         description="List of labels for the chart, providing context to the displayed data."
     )
-    title: str = Field(description="The title representing the visualization of the chart.")
     type: ChartType = Field(
         description="""The type of chart to be displayed on the dashboard.
         It determines the overall layout and the way data is represented in the chart.
@@ -34,8 +34,8 @@ class ChartOutput(BaseModel):
 
     def to_dict(self):
         return {
+            "title": self.title,
             "series": self.series,
             "labels": self.labels,
-            "title": self.title,
             "type": self.type,
         }

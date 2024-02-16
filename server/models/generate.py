@@ -42,3 +42,14 @@ class Answer(BaseModel):
             "chart": self.chart,
             "sources": self.sources,
         }
+
+
+class TableQA(BaseModel):
+    ai_answer: str = Field(description="사용자의 질문에 대응하는 AI 챗봇의 답변 텍스트입니다. ")
+    chart: Optional[ChartOutput] = Field(None, description="AI 챗봇이 만든 차트 데이터입니다. ")
+
+    def to_dict(self):
+        return {
+            "ai_answer": self.ai_answer,
+            "chart": self.chart,
+        }

@@ -12,9 +12,9 @@ from server.services.tools.tools import MemoryPythonAstREPLTool
 
 
 CHART_SUFFIX = """
-The chart is based on the pre-prepared local pandas DataFrame 'df'.
-The length of data to be handled should be between 3 and 20.
-Do not omit data by '...' in markdown format. Do not 'plot' anything.
+chart is based on the pre-prepared local pandas DataFrame 'df'.
+Do not omit data by '...' in markdown format.
+Do NOT use 'pyplot', 'pie()', 'plot' in python input.
 
 This is the result of `print(df.head())`:
 {df_head}
@@ -48,16 +48,21 @@ def generate_chart(
         return None
 
     if question is None:
-        question = "csv 데이터를 대표하는 간단한 차트를 생성해 줘. "
+        question = "csv 데이터를 대표하는 간단한 차트를 생성해 줘. 빠트린 정보가 있는지 엄격하게 검증해야 해. "
 
     if chart_type is not None:
         question += f"차트 타입은 {chart_type}로 해줘. "
 
-    if 1 == 0:
-        llm = ChatOpenAI(temperature=0.7, model_name="gpt-4-0125-preview")
-    else:  # if 1 == 0
-        llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo-0125")
+    is_gpt_4 = True
 
+    if is_gpt_4:
+        model_name = "gpt-4-0125-preview"
+    else:
+        model_name = "gpt-3.5-turbo-0125"
+
+    llm = ChatOpenAI(temperature=0.7, model_name=model_name)
+
+    # agent 정의
     agent = create_pandas_dataframe_agent(
         llm=llm,
         df=df,
@@ -69,9 +74,8 @@ def generate_chart(
         max_iterations=8,
     )
     memory_python_repl_tool = MemoryPythonAstREPLTool(locals={"df": df})
-    agent.handle_parsing_errors = True
-
     agent.tools = [memory_python_repl_tool]
+    agent.handle_parsing_errors = True
 
     result = agent.invoke(
         {
@@ -79,7 +83,8 @@ def generate_chart(
             "format_instruction": chart_parser.get_format_instructions(),
         }
     )
-    print(f"{memory_python_repl_tool.history=}")
+
     output = result["output"]
+
     chart_output = chart_parser.parse(output)
     return chart_output

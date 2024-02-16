@@ -1,4 +1,5 @@
 from ...models.chart import ChartOutput
+from ...models.generate import TableQA
 from ...models.recap import RecapOutput
 from ...models.recommendation import RecommendationOutput
 from .formatted_pydantic import FormattedPydanticOutputParser
@@ -12,4 +13,7 @@ recommendation_parser: FormattedPydanticOutputParser[
 ] = FormattedPydanticOutputParser(pydantic_object=RecommendationOutput)
 recap_parser: FormattedPydanticOutputParser[RecapOutput] = FormattedPydanticOutputParser(
     pydantic_object=RecapOutput
+)
+table_qa_parser: FormattedPydanticOutputParser[TableQA] = FormattedPydanticOutputParser(
+    pydantic_object=TableQA
 )
