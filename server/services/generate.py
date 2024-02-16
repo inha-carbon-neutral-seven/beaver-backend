@@ -51,7 +51,7 @@ def filter_visualization_request(message_input: str) -> bool:
         morph_result = okt.pos(message_input, norm=True, stem=True)
 
     except ValueError:
-        logging.warning("%s: 형태소로 나누는 데에 실패함")
+        logging.warning("형태소로 나누는 데에 실패함")
         return False
 
     nouns = ["분석", "시각", "차트", "시각화", "통계", "동향", "변화", "요약", "생성", "인사이트"]
