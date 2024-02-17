@@ -13,8 +13,8 @@ from server.services.tools.tools import MemoryPythonAstREPLTool
 
 CHART_SUFFIX = """
 chart is based on the pre-prepared local pandas DataFrame 'df'.
-Do not omit data by '...' in markdown format.
-Do NOT use 'pyplot', 'pie()', 'plot' in python input.
+DO NOT omit data with '...', instead actively use the 'Others' keyword.
+DO NOT use 'pyplot', 'pie()', 'plot' in python input.
 
 This is the result of `print(df.head())`:
 {df_head}

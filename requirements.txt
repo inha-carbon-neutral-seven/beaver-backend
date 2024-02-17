@@ -21,3 +21,4 @@ langchainhub==0.1.14
 langchain-openai==0.0.6
 konlpy==0.6.0
 spacy==3.7.2
+scikit-learn==1.4.1.post1
