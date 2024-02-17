@@ -39,14 +39,10 @@ def generate_recap() -> RecapOutput | None:
     )
 
     query_message = "Create a Recap in Korean. Fill in the summary part abundantly."
-    try:
-        res = summarizer.get_response(query_str=query_message, text_chunks=[document_text])
-        logging.info("recap result: %s", res.to_dict())
+    res = summarizer.get_response(query_str=query_message, text_chunks=[document_text])
 
-        return res
-    except ValueError as eeee:
-        print(f"{eeee=}")
-        raise eeee
+    logging.info("recap result: %s", res.to_dict())
+    return res
 
 
 def _load_service_context():
