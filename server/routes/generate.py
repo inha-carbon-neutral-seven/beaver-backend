@@ -24,5 +24,5 @@ async def debug(question: Question) -> Answer:
     메시지를 생성합니다.
     """
 
-    answer = generate_debug(question.message)
+    answer = await generate_debug(question.message)
     return answer

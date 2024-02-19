@@ -94,10 +94,12 @@ async def run_process(process_type: ProcessType, delay: int = 3) -> ProcessOutpu
     return ProcessOutput(status=True, type=process_type, output=output)
 
 
-def run_generate(message_input: str) -> Answer:
+async def run_generate(message_input: str, delay: int = 3) -> Answer:
     """
     LLM에 질문을 전달해 답변을 생성합니다.
     """
+
+    await sleep(delay)
 
     df = load_dataframe()
 
