@@ -7,7 +7,10 @@ from asyncio import sleep
 from typing import Any
 
 from ..models.chart import ChartType
+from ..models.generate import Answer, AnswerType
 from ..models.process import ChartOutput, ProcessOutput, ProcessType, RecapOutput
+from ..services.generate import filter_visualization_request
+from .storage import load_dataframe
 
 
 async def run_process(process_type: ProcessType, delay: int = 3) -> ProcessOutput:
@@ -89,3 +92,49 @@ async def run_process(process_type: ProcessType, delay: int = 3) -> ProcessOutpu
         return ProcessOutput(status=False)
 
     return ProcessOutput(status=True, type=process_type, output=output)
+
+
+def run_generate(message_input: str) -> Answer:
+    """
+    LLM에 질문을 전달해 답변을 생성합니다.
+    """
+
+    df = load_dataframe()
+
+    if df is None:
+        answer = Answer(
+            type=AnswerType.TEXT,
+            message="문서 답변입니다.",
+        )
+
+    else:
+        is_visualization_request = filter_visualization_request(message_input)
+
+        if is_visualization_request:
+            answer_type = AnswerType.CHART
+            chart = ChartOutput(
+                series=[{"name": "Bottles Sold", "data": [381305, 325943, 158268, 156031, 154141]}],
+                labels=[
+                    "VODKA 80 PROOF",
+                    "TEQUILA",
+                    "WHISKEY LIQUEUR",
+                    "CANADIAN WHISKIES",
+                    "SPICED RUM",
+                ],
+                title="Top 5 Categories by Bottles Sold",
+                type=ChartType.BAR,
+            )
+
+            answer = Answer(
+                type=answer_type,
+                message="차트 응답이 담긴 테이블 답변입니다.",
+                chart=chart,
+            )
+        else:
+            answer_type = AnswerType.TEXT
+            answer = Answer(
+                type=answer_type,
+                message="테이블 답변입니다.",
+            )
+
+    return answer
