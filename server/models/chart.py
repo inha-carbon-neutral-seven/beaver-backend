@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 
 class ChartType(str, Enum):
+    LINE = "line"
     BAR = "bar"
     PIE = "pie"
 
@@ -15,21 +16,26 @@ class Series(BaseModel):
 
 
 class ChartOutput(BaseModel):
-    title: str = Field(description="차트의 특성을 잘 표현하는 제목입니다. 한국어여야 합니다.")
+    title: str = Field(description="차트의 특성을 잘 표현하는 제목입니다. 한국어로 표현합니다.")
     series: List[Series] = Field(
         description="""List of series points for the chart,
-        each containing a name, type, and data points."""
+each containing a name, type, and data points."""
     )
     labels: List[str] = Field(
         description="List of labels for the chart, providing context to the displayed data."
     )
     type: ChartType = Field(
         description="""The type of chart to be displayed on the dashboard.
-        It determines the overall layout and the way data is represented in the chart.
-        "bar" type will represent data in rectangular bars,
-        helpful for comparing quantities across categories.
-        "pie" type will represent data in sectors of a circle,
-        ideal for showing the proportion of parts against the whole."""
+It determines the overall layout and the way data is represented in the chart.
+
+"line" type will represent data with points connected by straight line segments.
+useful for visualizing trends over time or other ordered categories
+
+"bar" type will represent data in rectangular bars,
+helpful for comparing quantities across categories.
+
+"pie" type will represent data in sectors of a circle,
+ideal for showing the proportion of parts against the whole."""
     )
 
     def to_dict(self):
