@@ -79,7 +79,6 @@ def table_qa(df: DataFrame, llm: ChatOpenAI, message_input: str) -> Answer:
         input_variables=["input", "df_head", "agent_scratchpad"],
         include_df_in_prompt=None,
         verbose=True,
-        max_iterations=8,
     )
     memory_python_repl_tool = MemoryPythonAstREPLTool(locals={"df": df, "pd": pd})
     agent.tools = [memory_python_repl_tool]
@@ -110,7 +109,6 @@ def table_qa_with_chart(df: DataFrame, llm: ChatOpenAI, message_input: str) -> A
         include_df_in_prompt=None,  # True, 라이브러리 상 세팅으로 None 설정
         verbose=True,
         return_intermediate_steps=True,
-        max_iterations=8,
     )
     memory_python_repl_tool = MemoryPythonAstREPLTool(locals={"df": df, "pd": pd})
     agent.tools = [memory_python_repl_tool]
