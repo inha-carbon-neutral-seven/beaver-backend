@@ -30,7 +30,7 @@ Question: {input}
 """
 
 PREDICT_SUFFIX = """
-Predict future trends using the scikit-learn library.
+you SHOULD use scikit-learn library for time-series analysis. `import scikit-learn`
 """
 
 CHART_SUFFIX = """
