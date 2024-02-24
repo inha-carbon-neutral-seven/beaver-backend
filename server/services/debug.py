@@ -9,7 +9,7 @@ from typing import Any
 from ..models.chart import ChartType
 from ..models.generate import Answer, AnswerType
 from ..models.process import ChartOutput, ProcessOutput, ProcessType, RecapOutput
-from ..services.generate import filter_visualization_request
+from ..services.generate import filter_visualization
 from .storage import load_dataframe
 
 
@@ -110,7 +110,7 @@ async def run_generate(message_input: str, delay: int = 3) -> Answer:
         )
 
     else:
-        is_visualization_request = filter_visualization_request(message_input)
+        is_visualization_request = filter_visualization(message_input)
 
         if is_visualization_request:
             answer_type = AnswerType.CHART
