@@ -30,7 +30,8 @@ Question: {input}
 """
 
 PREDICT_SUFFIX = """
-you SHOULD use scikit-learn library for time-series analysis. `import scikit-learn`
+you SHOULD use scikit-learn library for time-series analysis.
+`from sklearn.linear_model import LinearRegression`
 """
 
 CHART_SUFFIX = """
@@ -128,7 +129,7 @@ def table_qa_with_chart(
     agent = create_pandas_dataframe_agent(
         llm=llm,
         df=df,
-        suffix=CHART_SUFFIX,
+        suffix=suffix,
         input_variables=["input", "df_head", "agent_scratchpad", "format_instruction"],
         include_df_in_prompt=None,  # True, 라이브러리 상 세팅으로 None 설정
         verbose=True,
