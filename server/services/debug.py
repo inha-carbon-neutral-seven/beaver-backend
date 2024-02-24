@@ -115,7 +115,12 @@ async def run_generate(message_input: str, delay: int = 3) -> Answer:
         if is_visualization_request:
             answer_type = AnswerType.CHART
             chart = ChartOutput(
-                series=[{"name": "Bottles Sold", "data": [381305, 325943, 158268, 156031, 154141]}],
+                series=[
+                    {
+                        "name": "Bottles Sold",
+                        "data": [381305.233, 325943.32, 158268.33, 156031.23, 154141.23],
+                    }
+                ],
                 labels=[
                     "VODKA 80 PROOF",
                     "TEQUILA",
