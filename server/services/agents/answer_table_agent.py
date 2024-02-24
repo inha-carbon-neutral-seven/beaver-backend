@@ -13,7 +13,10 @@ from ..tools.tools import MemoryPythonAstREPLTool
 
 TABLE_SUFFIX = """
 Your Answer is based on the pre-prepared local pandas DataFrame 'df'.
-Do not omit data by '...' in markdown format.
+
+Check strictly at each step whether data is omitted in '...' format.
+If you miss it, prepare to process the data in another way.
+
 Do NOT use 'pyplot', 'pie()', 'plot' in python input.
 
 This is the result of `print(df.head())`:
@@ -26,10 +29,11 @@ Question: {input}
 {agent_scratchpad}
 """
 
-
+# TODO: 형태소 분석을 통해 scikit-learn 적용하는 로직 분리
 CHART_SUFFIX = """
-Your answer and chart is based on the pre-prepared local pandas DataFrame 'df'.
-DO NOT omit data by '...' in markdown format.
+Check strictly at each step whether data is omitted in '...' format.
+If you miss it, prepare to process the data in another way.
+
 DO NOT use 'pyplot', 'pie()', 'plot' in python input.
 
 This is the result of `print(df.head())`:
