@@ -73,16 +73,40 @@ async def run_process(process_type: ProcessType, delay: int = 4) -> ProcessOutpu
     return ProcessOutput(status=True, type=process_type, output=output)
 
 
-async def run_generate(message_input: str, delay: int = 3) -> Answer:
+async def run_generate(message_input: str, delay: int = 10) -> Answer:
     """
     LLM에 질문을 전달해 답변을 생성합니다.
     """
+    question_1 = "질문 추천 리스트에 있던 질문 하나입니다. "
+    answer_1 = "쇠고기와 관련된 적절한 테이블 답변입니다. 뭘로 구상해야 할까요?"
+    io_memory_1 = IOMemory(
+        input="i love sogogi",
+        output="me too",
+    )
+
+    question_2 = "2024년 쇠고기 가격이 궁금해. 예상해서 차트로 보여줘."
+    answer_2 = "2024년의 쇠고기 평균 가격을 선형 회귀 모델을 사용하여 약 8973.21로 예측하였습니다."
+    io_memory_2 = IOMemory(
+        input="from sklearn.linear_model import LinearRegression\n"
+        + "import numpy as np\n"
+        + "years = np.array([2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022])\n"
+        + "prices = np.array([2559.493617, 2736.605401, 960.389374, 3282.544914, 3741.677062, "
+        + "3840.397646, 5232.586336, 6793.148872, 7466.035397, 8197.025816, 8973.213920])\n"
+        + "model = LinearRegression().fit(years, prices)\n"
+        + "predicted_price_2024 = model.predict(np.array([[2024]]))\n"
+        + "predicted_price_2024\n",
+        output="[8973.21392028]",
+    )
+
+    if question_1 + question_2 is None:
+        question_2 = None
 
     await sleep(delay)
 
     df = load_dataframe()
 
     if df is None:
+        delay = 3
         answer = Answer(
             type=AnswerType.TEXT,
             message="문서 답변입니다.",
@@ -92,19 +116,9 @@ async def run_generate(message_input: str, delay: int = 3) -> Answer:
         is_visualization_request = filter_visualization_request(message_input)
 
         if is_visualization_request:
+            delay = 12
             answer_type = AnswerType.CHART
-            iomemory = IOMemory(
-                input="from sklearn.linear_model import LinearRegression\n"
-                + "import numpy as np\n"
-                + "years = np.array([2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022])\n"
-                + "prices = np.array([2559.493617, 2736.605401, 960.389374, 3282.544914, 3741.67706"
-                + "2, 3840.397646, 5232.586336, 6793.148872, 7466.035397, 8197.025816, 8973.213920]"
-                + ")\nmodel = LinearRegression().fit(years, prices)\n"
-                + "predicted_price_2024 = model.predict(np.array([[2024]]))\n"
-                + "predicted_price_2024\n",
-                output="[8973.21392028]",
-            )
-            sources = [iomemory]
+
             chart = ChartOutput(
                 title="2024년 쇠고기 평균 가격 예상",
                 series=[
@@ -143,16 +157,18 @@ async def run_generate(message_input: str, delay: int = 3) -> Answer:
 
             answer = Answer(
                 type=answer_type,
-                message="2024년의 쇠고기 평균 가격을 선형 회귀 모델을 사용하여 약 8973.21로 예측하였습니다.",
+                message=answer_2,
                 chart=chart,
-                sources=sources,
+                sources=[io_memory_2],
             )
+
         else:
+            delay = 8
             answer_type = AnswerType.TEXT
             answer = Answer(
                 type=answer_type,
-                message="테이블 답변입니다.",
-                sources=[],
+                message=answer_1,
+                sources=[io_memory_1],
             )
 
     return answer
