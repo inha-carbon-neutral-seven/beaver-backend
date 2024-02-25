@@ -94,7 +94,7 @@ def table_qa(df: DataFrame, llm: ChatOpenAI, message_input: str) -> Answer:
     # 결과물 추출
     message = result["output"]
     sources = memory_python_repl_tool.parse_last_history()
-
+    print(f"{sources=}")
     answer = Answer(
         type=AnswerType.TEXT,
         message=message,
