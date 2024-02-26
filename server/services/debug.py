@@ -50,6 +50,7 @@ async def run_process(process_type: ProcessType, delay: int = 4) -> ProcessOutpu
                     "풋고추",
                     "건고추",
                     "호박",
+                    "호박",
                     "이외 품목",
                 ],
                 title="품목명별 데이터 분포",
@@ -59,9 +60,9 @@ async def run_process(process_type: ProcessType, delay: int = 4) -> ProcessOutpu
 
     elif process_type == ProcessType.RECOMMENDATION:
         output = [
-            "1996년부터 2023년까지 소매 판매된 농축수산물 중 가장 비싼 평균 가격은 얼마였나요?",
-            "데이터에 따르면, 월별로 가장 많이 팔린 농축수산물은 어떤 것이었나요?",
-            "유통 단계별 무게가 가장 크게 나타난 농축수산물은 무엇이며, 그 무게는 얼마였나요?",
+            "쇠고기가 가장 잘 팔린 시기는 언제인가요?",
+            "등급에 따른 오이의 가격 차이는 얼마나 되나요?",
+            "유통단계별무게가 100 이상인 제품은 어떤 품목들이 있나요?",
         ]
 
     else:
@@ -77,15 +78,15 @@ async def run_generate(message_input: str, delay: int = 10) -> Answer:
     """
     LLM에 질문을 전달해 답변을 생성합니다.
     """
-    question_1 = "질문 추천 리스트에 있던 질문 하나입니다. "
-    answer_1 = "쇠고기와 관련된 적절한 테이블 답변입니다. 뭘로 구상해야 할까요?"
+    question_1 = "쇠고기가 가장 잘 팔린 시기는 언제인가요?"
+    answer_1 = "쇠고기가 가장 잘 팔린 시기는 2022년 4월입니다."
     io_memory_1 = IOMemory(
-        input="i love sogogi",
-        output="me too",
+        input="df.loc[23602, ['연도', '월']]",
+        output="연도    2022\n" + "월        4\n" + "Name: 23602, dtype: object",
     )
 
-    question_2 = "2024년 쇠고기 가격이 궁금해. 예상해서 차트로 보여줘."
-    answer_2 = "2024년의 쇠고기 평균 가격을 선형 회귀 모델을 사용하여 약 8973.21로 예측하였습니다."
+    question_2 = "2024년 쇠고기 가격이 궁금해. 예상 결과를 보여줄 수 있어?"
+    answer_2 = "2024년의 쇠고기 평균 가격을 선형 회귀 모델을 사용하여 약 8973원으로 예측하였습니다."
     io_memory_2 = IOMemory(
         input="from sklearn.linear_model import LinearRegression\n"
         + "import numpy as np\n"
