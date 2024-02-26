@@ -60,7 +60,7 @@ async def run_process(process_type: ProcessType, delay: int = 4) -> ProcessOutpu
 
     elif process_type == ProcessType.RECOMMENDATION:
         output = [
-            "쇠고기가 가장 잘 팔린 시기는 언제인가요?",
+            "쇠고기의 평균 가격이 가장 높았던 시기는 언제인가요?",
             "등급에 따른 오이의 가격 차이는 얼마나 되나요?",
             "유통단계별무게가 100 이상인 제품은 어떤 품목들이 있나요?",
         ]
@@ -78,11 +78,15 @@ async def run_generate(message_input: str, delay: int = 10) -> Answer:
     """
     LLM에 질문을 전달해 답변을 생성합니다.
     """
-    question_1 = "쇠고기가 가장 잘 팔린 시기는 언제인가요?"
-    answer_1 = "쇠고기가 가장 잘 팔린 시기는 2022년 4월입니다."
+    question_1 = "쇠고기의 평균 가격이 가장 높았던 시기는 언제인가요?"
+    answer_1 = (
+        "쇠고기의 평균 가격이 가장 높았던 시기는 2022년 4월이며, 품종명은 한우안심이고, 등급명은 1+등급입니다. "
+        + "평균 가격은 100g 당 19,458.182원이었습니다."
+    )
     io_memory_1 = IOMemory(
-        input="df.loc[23602, ['연도', '월']]",
-        output="연도    2022\n" + "월        4\n" + "Name: 23602, dtype: object",
+        input="df[df['품목명'] == '쇠고기'].sort_values(by='평균가격', ascending=False).head(1)",
+        output="         연도  월  품목명   품종명       평균가격   등급명  유통단계별무게 유통단계별단위\n"
+        + "23602  2022  4  쇠고기  한우안심  19458.182  1+등급      100       g",
     )
 
     question_2 = "2024년 쇠고기 가격이 궁금해. 예상 결과를 보여줄 수 있어?"
