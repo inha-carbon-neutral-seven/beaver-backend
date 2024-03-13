@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 
 
 class ChartType(str, Enum):
-    LINE = "line"
     BAR = "bar"
     PIE = "pie"
 
@@ -27,9 +26,6 @@ each containing a name, type, and data points."""
     type: ChartType = Field(
         description="""The type of chart to be displayed on the dashboard.
 It determines the overall layout and the way data is represented in the chart.
-
-"line" type will represent data with points connected by straight line segments.
-useful for visualizing trends over time or other ordered categories
 
 "bar" type will represent data in rectangular bars,
 helpful for comparing quantities across categories.

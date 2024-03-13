@@ -29,7 +29,11 @@ Question: {input}
 {agent_scratchpad}
 """
 
-# TODO: 형태소 분석을 통해 scikit-learn 적용하는 로직 분리
+PREDICT_SUFFIX = """
+you SHOULD use scikit-learn library for time-series analysis.
+`from sklearn.linear_model import LinearRegression`
+"""
+
 CHART_SUFFIX = """
 Check strictly at each step whether data is omitted in '...' format.
 If you miss it, prepare to process the data in another way.
@@ -48,7 +52,12 @@ Question: {input}
 """
 
 
-def lookup(df: DataFrame, message_input: str, answer_type: AnswerType = AnswerType.TEXT) -> Answer:
+def lookup(
+    df: DataFrame,
+    message_input: str,
+    answer_type: AnswerType = AnswerType.TEXT,
+    predict: bool = False,
+) -> Answer:
     """
     테이블로부터 답변을 생성합니다.
 
@@ -67,19 +76,24 @@ def lookup(df: DataFrame, message_input: str, answer_type: AnswerType = AnswerTy
     llm = ChatOpenAI(temperature=0.7, model_name=model_name)
 
     if answer_type == AnswerType.CHART:
-        answer = table_qa_with_chart(df=df, llm=llm, message_input=message_input)
+        answer = table_qa_with_chart(df=df, llm=llm, message_input=message_input, predict=predict)
     else:
-        answer = table_qa(df=df, llm=llm, message_input=message_input)
+        answer = table_qa(df=df, llm=llm, message_input=message_input, predict=predict)
 
     return answer
 
 
-def table_qa(df: DataFrame, llm: ChatOpenAI, message_input: str) -> Answer:
+def table_qa(df: DataFrame, llm: ChatOpenAI, message_input: str, predict: bool) -> Answer:
+    suffix = TABLE_SUFFIX
+
+    if predict is True:
+        suffix = PREDICT_SUFFIX + suffix
+
     # agent 설정
     agent = create_pandas_dataframe_agent(
         llm=llm,
         df=df,
-        suffix=TABLE_SUFFIX,
+        suffix=suffix,
         input_variables=["input", "df_head", "agent_scratchpad"],
         include_df_in_prompt=None,
         verbose=True,
@@ -103,12 +117,19 @@ def table_qa(df: DataFrame, llm: ChatOpenAI, message_input: str) -> Answer:
     return answer
 
 
-def table_qa_with_chart(df: DataFrame, llm: ChatOpenAI, message_input: str) -> Answer:
+def table_qa_with_chart(
+    df: DataFrame, llm: ChatOpenAI, message_input: str, predict: bool
+) -> Answer:
+    suffix = CHART_SUFFIX
+
+    if predict is True:
+        suffix = PREDICT_SUFFIX + suffix
+
     # agent 설정
     agent = create_pandas_dataframe_agent(
         llm=llm,
         df=df,
-        suffix=CHART_SUFFIX,
+        suffix=suffix,
         input_variables=["input", "df_head", "agent_scratchpad", "format_instruction"],
         include_df_in_prompt=None,  # True, 라이브러리 상 세팅으로 None 설정
         verbose=True,

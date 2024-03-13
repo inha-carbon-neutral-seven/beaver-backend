@@ -25,25 +25,27 @@ def generate_message(message_input: str) -> Answer:
         answer = answer_document_agent(message_input)
 
     else:
-        is_visualization_request = filter_visualization_request(message_input)
+        visualization = filter_visualization(message_input)
 
-        if is_visualization_request:
+        if visualization:
             answer_type = AnswerType.CHART
             logging.info("질문에서 시각화 요청 감지")
 
         else:
             answer_type = AnswerType.TEXT
 
-        answer = answer_table_agent(df, message_input, answer_type)
+        predict = filter_prediction(message_input)
+
+        answer = answer_table_agent(df, message_input, answer_type, predict)
 
     logging.info("생성한 응답: %s", answer.message)
 
     return answer
 
 
-def filter_visualization_request(message_input: str) -> bool:
+def filter_message_input(message_input: str, nouns: list[str], verbs: list[str]) -> bool:
     """
-    시각화를 요청하는 문장인지 표제어 추출(Lemmaization)을 통해 알아냅니다.
+    요청의 특성을 표제어 추출(Lemmatization)을 통해 알아냅니다.
     """
 
     okt = Okt()
@@ -53,9 +55,6 @@ def filter_visualization_request(message_input: str) -> bool:
     except ValueError:
         logging.warning("형태소로 나누는 데에 실패함")
         return False
-
-    nouns = ["분석", "시각", "차트", "시각화", "통계", "동향", "변화", "요약", "생성", "인사이트"]
-    verbs = ["보다", "그리다", "생성하다", "보여주다", "만들다"]
 
     word_dict = {}
     for noun in nouns:
@@ -75,3 +74,27 @@ def filter_visualization_request(message_input: str) -> bool:
                 return True
 
     return False
+
+
+def filter_visualization(message_input: str) -> bool:
+    """
+    시각화를 요청하는 문장인지 표제어 추출(Lemmatization)을 통해 알아냅니다.
+    """
+
+    nouns = ["분석", "시각", "차트", "시각화", "통계", "동향", "변화", "요약", "생성", "인사이트"]
+    verbs = ["보다", "그리다", "생성하다", "보여주다", "만들다"]
+
+    result = filter_message_input(message_input=message_input, nouns=nouns, verbs=verbs)
+    return result
+
+
+def filter_prediction(message_input: str) -> bool:
+    """
+    가격을 예측하는 문장인지 표제어 추출(Lemmaization)을 통해 알아냅니다.
+    """
+
+    nouns = ["예상", "예측"]
+    verbs: list[str] = []
+
+    result = filter_message_input(message_input=message_input, nouns=nouns, verbs=verbs)
+    return result

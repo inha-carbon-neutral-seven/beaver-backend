@@ -9,7 +9,7 @@ from typing import Any
 from ..models.chart import ChartType
 from ..models.generate import Answer, AnswerType
 from ..models.process import ChartOutput, ProcessOutput, ProcessType, RecapOutput
-from ..services.generate import filter_visualization_request
+from ..services.generate import filter_visualization
 from .storage import load_dataframe
 
 
@@ -110,12 +110,17 @@ async def run_generate(message_input: str, delay: int = 3) -> Answer:
         )
 
     else:
-        is_visualization_request = filter_visualization_request(message_input)
+        is_visualization_request = filter_visualization(message_input)
 
         if is_visualization_request:
             answer_type = AnswerType.CHART
             chart = ChartOutput(
-                series=[{"name": "Bottles Sold", "data": [381305, 325943, 158268, 156031, 154141]}],
+                series=[
+                    {
+                        "name": "Bottles Sold",
+                        "data": [381305.233, 325943.32, 158268.33, 156031.23, 154141.23],
+                    }
+                ],
                 labels=[
                     "VODKA 80 PROOF",
                     "TEQUILA",
